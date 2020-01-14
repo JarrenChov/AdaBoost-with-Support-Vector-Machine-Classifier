@@ -17,7 +17,7 @@ def arg_value(keyword, raw_input):
 
   # Ensure preceding character is of an assignment type
   if value[0] == '=':
-    value = value.replace('=', '', 1).strip()
+    value = value.replace('=', '', 1).strip().lower()
     if value is not '':
       return value
 

@@ -1,4 +1,4 @@
-# AdaBoost-with-Support-Vector-Machine-Classifier
+# AdaBoost with Support-Vector Machine Classifier
 
  The project consists mainly of:
  - Unittest (Inbuilt Python Unit Testing)
@@ -11,7 +11,7 @@
   - [Directory Structure](#directory-structure)
   - [Understanding the concept of Adaptive Boosting (AdaBoost)](#understanding-the-concept-of-adaptive-boosting-(adaboost))
   - [Understanding the concept of Principal Component Analysis (PCA)](#understanding-the-concept-of-principal-component-analysis-(pca))
-  - [Understanding the concept of Suppoer Vector Machine (SVM)](#understanding-the-concept-of-support-vector-machine-(svm))
+  - [Understanding the concept of Support Vector Machine (SVM)](#understanding-the-concept-of-support-vector-machine-(svm))
 - [Usage](#usage)
   - [Running the Application](#running-the-application)
   - [Running the Application Test Suite](#running-the-application-test-suite)
@@ -42,6 +42,13 @@ AdaBoost-with-Support-Vector-Machine-Classifier
 │   │   ├── test_extract_value.py
 │   │   ├── test_retrieve_param.py
 │   │   └── test_set_param.py
+│   ├── learning
+│   │   ├── dimension_reduction
+│   │   |   ├── pca
+│   │   |   |   ├── application.py
+│   │   |   |   └── __init__.py
+│   │   |   └── __init__.py
+│   │   └── __init__.py
 │   ├── __init__.py
 │   ├── __main__.py
 │   └── application.py
@@ -73,7 +80,7 @@ python -m adaboost {parameters}
 Please note that:
 > `[*]` - Denotes a required parameter. `[#]` - Denotes a optional parameter, where a default value will be overrided if such parameter is supplied.
 
-Parmaeters allowed are of the following:
+Parameters allowed are of the following:
 - `[*] dataset_file=<value>`:
   - `<value>` can accept either of the following:
     - default - Uses the supplied dataset(s) present *[Currently only a single dataset is present]*.

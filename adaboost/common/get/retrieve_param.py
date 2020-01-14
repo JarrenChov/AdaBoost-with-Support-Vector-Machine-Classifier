@@ -3,43 +3,6 @@ from adaboost.common import constants, convert_type
 from adaboost.common.check import check_type
 from adaboost.common.get import extract_value
 
-#####################
-# AdaBoost Parameters
-#####################
-# Extract estimator value from specified argument
-def adaboost_arg_estimators():
-  result = [param for param in sys.argv if 'adaboost_estimators' in param]
-
-  if len(result) == 0:
-    print("> Unspecified parameter found (Specify estimator: estimators=<type 'int'>).")
-  elif len(result) >= 2:
-    print("> Multiple estimators found. Check only a single estimator is specified.\n"
-          "\tFound argument 'estimator' duplicates: %s\n"
-          % (result))
-  else:
-    return extract_value.arg_value('adaboost_estimators', result[0])
-  return None
-
-
-# Extract estimator value from user specified value
-def adaboost_input_estimators():
-  accept_param_value = False
-  result = None
-
-  while accept_param_value is False:
-    result = input("Number of Estimators (Weak Learners): ").strip()
-    param_value = convert_type.to_int(result)
-
-    if check_type.is_int(param_value):
-      if param_value > 0:
-        accept_param_value = True
-      else:
-        print("Invalid number. Try Again.\n")
-    else:
-      print("Check input is of <type 'int'> . Try Again.\n")
-  return result
-
-
 ####################
 # Dataset Parameters
 ####################
@@ -48,7 +11,7 @@ def arg_dataset():
   result = [param for param in sys.argv if 'dataset_file' in param]
 
   if len(result) == 0:
-    print("> Unspecified parameter found (Specify dataset: file={default | filepath}).")
+    print("> Unspecified parameter found (Specify dataset: dataset_file={default | filepath}).")
   elif len(result) >= 2:
     print("> Multiple dataset found. Check only a single dataset is specified.\n"
           "\tFound argument 'dataset' duplicates: %s\n"
@@ -63,10 +26,10 @@ def arg_dataset_sample_size():
   result = [param for param in sys.argv if 'dataset_sample_size' in param]
 
   if len(result) == 0:
-    print("> Unspecified parameter found (Specify sample size: sample_size=<type 'int'>).")
+    print("> Unspecified parameter found (Specify dataset sample size: dataset_sample_size=<type 'int'>).")
   elif len(result) >= 2:
-    print("> Multiple sample sizes found. Check only a single sample size is specified.\n"
-          "\tFound argument 'sample size' duplicates: %s\n"
+    print("> Multiple dataset sample sizes found. Check only a single sample size is specified.\n"
+          "\tFound argument 'dataset sample size' duplicates: %s\n"
           % (result))
   else:
     return extract_value.arg_value('dataset_sample_size', result[0])
@@ -112,7 +75,101 @@ def input_dataset_sample_size():
   result = None
 
   while accept_param_value is False:
-    result = input("Training Sample Size: ").strip()
+    result = input("Dataset Sample Size: ").strip()
+    param_value = convert_type.to_int(result)
+
+    if check_type.is_int(param_value):
+      if param_value > 0:
+        accept_param_value = True
+      else:
+        print("Invalid number. Try Again.\n")
+    else:
+      print("Check input is of <type 'int'> . Try Again.\n")
+  return result
+
+
+################
+# PCA Parameters
+################
+# [OPTIONAL] Extract pca reduction value from specified argument
+def pca_arg_reduction():
+  result = [param for param in sys.argv if 'pca_reduction' in param]
+
+  if len(result) == 0:
+    print("> [OPTIONAL] (Specify pca reduction size: pca_reduction={\"default\" | <type 'int'> | <type 'float'>}).")
+    print("\tUsing Default: PCA-Reduction=%s\n" % ('none'))
+    return "none"
+  elif len(result) >= 2:
+    print("> Multiple pca reduction found. Check only a single pca reduction is specified.\n"
+          "\tFound argument 'pca reduction' duplicates: %s\n"
+          % (result))
+  else:
+    return extract_value.arg_value('pca_reduction', result[0])
+  return None
+
+
+# Extract pca reduction value from user specified value
+def pca_input_reduction():
+  accept_param_value = False
+  result = None
+
+  while accept_param_value is False:
+    result = input("PCA reduction size on dataset (proportion [0 <-> 1] / Number of features): ").strip().lower()
+
+    if result == "none" or result == "default":
+      accept_param_value = True
+
+    if accept_param_value is False:
+      if '.' in result:
+        param_value = convert_type.to_float(result)
+        if check_type.is_float(param_value):
+          if param_value >= 0 and param_value <= 1:
+            accept_param_value = True
+          else:
+            print("Invalid number. Try Again.\n")
+        else:
+          print("Please check input is one of the following:\n"
+          "\"default\" | \"none\" | <type 'int'> | <type 'float'>\n"
+          "Try Again.\n")
+      else:
+        param_value = convert_type.to_int(result)
+        if check_type.is_int(param_value):
+          if param_value > 0:
+            accept_param_value = True
+          else:
+            print("Invalid number. Try Again.\n")
+        else:
+          print("Please check input is one of the following:\n"
+          "\"default\" | \"none\" | <type 'int'> | <type 'float'>\n"
+          "Try Again.\n")
+  return result
+
+
+#####################
+# AdaBoost Parameters
+#####################
+# Extract estimator value from specified argument
+def adaboost_arg_estimators():
+  result = [param for param in sys.argv if 'adaboost_estimators' in param]
+
+  if len(result) == 0:
+    print("> Unspecified parameter found (Specify adaboost estimator: adaboost_estimators=<type 'int'>).")
+  elif len(result) >= 2:
+    print("> Multiple adaboost estimators found. Check only a single adaboost estimator is specified.\n"
+          "\tFound argument 'adaboost estimator' duplicates: %s\n"
+          % (result))
+  else:
+    return extract_value.arg_value('adaboost_estimators', result[0])
+  return None
+
+
+# Extract estimator value from user specified value
+def adaboost_input_estimators():
+  accept_param_value = False
+  result = None
+
+  while accept_param_value is False:
+    result = input("Number of AdaBoost Estimators (Weak Learners): ").strip()
     param_value = convert_type.to_int(result)
 
     if check_type.is_int(param_value):
