@@ -91,7 +91,7 @@ One the other hand, if you wish to assign parameters straight from the command l
 python -m adaboost {parameters}
 ```
 Please note that:
-> `[*]` - Denotes a required parameter. `[#]` - Denotes a optional parameter, where a default value will be overrided if such parameter is supplied.
+> `[*]` - Denotes a required parameter, `[!*]` - deootes a required parameter given that the default dataset is not used, `[#]` - Denotes a optional parameter, where a default value will be overrided if such parameter is supplied.
 
 Parameters in which will be processed are of the following:
 - `[*] dataset_file=<value>`:
@@ -101,6 +101,12 @@ Parameters in which will be processed are of the following:
 - `[*] dataset_sample_size=<value>`:
   - `<value>` can accept either of the following:
     - A string integer value denoting a number value
+- `[!*] dataset_label_column=<value>`:
+  - `<value>` can accept either of the following:
+    - A integer value denoting a column index in a dataset
+- `[!*] dataset_feature_columns=<value> - <value>`:
+  - `<value>` can accept either of the following:
+    - A integer value denoting a column index in a dataset
 - `[#] pca_reduction=<value>`:
   - Unspecified `<value>` will revert to default reduction string `<value=default>`
   - `<value>` can accept either of the following:

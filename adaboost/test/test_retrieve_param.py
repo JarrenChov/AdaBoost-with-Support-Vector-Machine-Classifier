@@ -1,4 +1,4 @@
-from unittest import mock, skip, TestCase
+from unittest import mock, TestCase
 from adaboost.common import constants
 from adaboost.common.get import retrieve_param
 
