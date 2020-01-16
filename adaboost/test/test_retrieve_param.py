@@ -3,23 +3,6 @@ from adaboost.common import constants
 from adaboost.common.get import retrieve_param
 
 class TestRetrieveParam(TestCase):
-# Notes:
-# =============================================================================
-#   Some cases may have a skip, this is intentional as no output is produced
-#   due to a while loop condition until an acceptable response is obtained.
-#
-# The following cases and its identifier detail the information corresponding to its information.
-# ADABOOST_NEG_NUM - A negative number was supplied, such that only numbers > 0 are accepted.
-# ADABOOST_ZERO_NUM - A number 0 was supplied, such that only numbers > 0 are accepted.
-# ADABOOST_EMP_STRING - A empty string was supplied, such that only a non-empty string
-#                       or a number is accepted.
-# ADABOOST_ERR_IN_NUM - A invalid input, such that only numbers (integers) are accepted.
-# ADABOOST_ERR_IN_STRING - A invalid input, such that only strings are accepted.
-# DATASET_NEG_NUM - A negative number was supplied, such that only '1' is accepted.
-# DATASET_ZERO_NUM - A number 0 was supplied, such that only '1' is accepted.
-# DATASET_OVR_NUM - A number was supplied but no such dataset exists, only '1' is accepted.
-# OUT_DETAIL_IN_STR - A string was obtained, but string was invalid.
-# =============================================================================
 
   constants.initialize()
 
@@ -27,66 +10,57 @@ class TestRetrieveParam(TestCase):
 # Number / Float Cases as String (Python Input)
 ###############################################
 # AdaBoost Input Estimators
-  @skip("ADABOOST_NEG_NUM")
   def test_number_adaboost_estimators_case_0(self):
-    with mock.patch('builtins.input', return_value="-1"):
-      self.assertEqual(retrieve_param.adaboost_input_estimators(), None)
+    with mock.patch('builtins.input', side_effect = ["-1", "1"]):
+      self.assertEqual(retrieve_param.input_adaboost_estimators(), "1")
 
-  @skip("ADABOOST_ZERO_NUM")
   def test_number_adaboost_estimators_case_1(self):
-    with mock.patch('builtins.input', return_value="0"):
-      self.assertEqual(retrieve_param.adaboost_input_estimators(), None)
+    with mock.patch('builtins.input', side_effect = ["0", "1"]):
+      self.assertEqual(retrieve_param.input_adaboost_estimators(), "1")
 
-  @skip("ADABOOST_ERR_IN_NUM")
   def test_number_adaboost_estimators_case_2(self):
-    with mock.patch('builtins.input', return_value="3.14"):
-      self.assertEqual(retrieve_param.adaboost_input_estimators(), None)
+    with mock.patch('builtins.input', side_effect = ["3.14", "1"]):
+      self.assertEqual(retrieve_param.input_adaboost_estimators(), "1")
 
   def test_number_adaboost_estimators_case_3(self):
     with mock.patch('builtins.input', return_value="1"):
-      self.assertEqual(retrieve_param.adaboost_input_estimators(), "1")
+      self.assertEqual(retrieve_param.input_adaboost_estimators(), "1")
 
   def test_number_adaboost_estimators_case_4(self):
     with mock.patch('builtins.input', return_value="400"):
-      self.assertEqual(retrieve_param.adaboost_input_estimators(), "400")
+      self.assertEqual(retrieve_param.input_adaboost_estimators(), "400")
 
 
 # Input Dataset
-  @skip("DATASET_OVR_NUM")
-  def test_number_dataset_case_0(self):
-   with mock.patch('builtins.input', return_value=40):
-      self.assertEqual(retrieve_param.input_dataset(), None)
+  def test_number_input_dataset_case_0(self):
+   with mock.patch('builtins.input', side_effect = ["40", "1"]):
+      self.assertEqual(retrieve_param.input_dataset(), "default")
 
-  @skip("DATASET_NEG_NUM")
-  def test_number_dataset_case_1(self):
-   with mock.patch('builtins.input', return_value=-1):
-      self.assertEqual(retrieve_param.input_dataset(), None)
+  def test_number_input_dataset_case_1(self):
+   with mock.patch('builtins.input', side_effect = ["-1", "1"]):
+      self.assertEqual(retrieve_param.input_dataset(), "default")
 
-  @skip("ADABOOST_ERR_IN_NUM")
-  def test_number_dataset_case_2(self):
-    with mock.patch('builtins.input', return_value="3.14"):
-      self.assertEqual(retrieve_param.input_dataset(), None)
+  def test_number_input_dataset_case_2(self):
+    with mock.patch('builtins.input', side_effect = ["3.14", "1"]):
+      self.assertEqual(retrieve_param.input_dataset(), "default")
 
-  def test_number_dataset_case_3(self):
+  def test_number_input_dataset_case_3(self):
     with mock.patch('builtins.input', return_value="1"):
       self.assertEqual(retrieve_param.input_dataset(), "default")
 
 
 # Input Dataset Sample Size
-  @skip("ADABOOST_NEG_NUM")
   def test_number_dataset_sample_size_case_0(self):
-    with mock.patch('builtins.input', return_value="-1"):
-      self.assertEqual(retrieve_param.input_dataset_sample_size(), None)
+    with mock.patch('builtins.input', side_effect = ["-1", "1"]):
+      self.assertEqual(retrieve_param.input_dataset_sample_size(), "1")
 
-  @skip("ADABOOST_ZERO_NUM")
   def test_number_dataset_sample_size_case_1(self):
-    with mock.patch('builtins.input', return_value="0"):
-      self.assertEqual(retrieve_param.input_dataset_sample_size(), None)
+    with mock.patch('builtins.input', side_effect = ["0", "1"]):
+      self.assertEqual(retrieve_param.input_dataset_sample_size(), "1")
 
-  @skip("ADABOOST_ERR_IN_NUM")
   def test_number_dataset_sample_size_case_2(self):
-    with mock.patch('builtins.input', return_value="3.14"):
-      self.assertEqual(retrieve_param.input_dataset_sample_size(), None)
+    with mock.patch('builtins.input', side_effect = ["3.14", "1"]):
+      self.assertEqual(retrieve_param.input_dataset_sample_size(), "1")
 
   def test_number_dataset_sample_size_case_3(self):
     with mock.patch('builtins.input', return_value="1"):
@@ -97,48 +71,109 @@ class TestRetrieveParam(TestCase):
       self.assertEqual(retrieve_param.input_dataset_sample_size(), "400")
 
 
-# Input Out Details
-  @skip("ADABOOST_ERR_IN_STRING")
-  def test_number_out_detail_case_0(self):
-    with mock.patch('builtins.input', return_value="1"):
-      self.assertEqual(retrieve_param.input_out_detail(), None)
+# Input_dataset Feature COlumn
+  def test_number_input_dataset_features_col_case_0(self):
+    with mock.patch('builtins.input', side_effect = ["1-1", "1-2"]):
+      self.assertEqual(retrieve_param.input_dataset_features_col(), "1-2")
 
-  @skip("ADABOOST_ERR_IN_STRING")
+  def test_number_input_dataset_features_col_case_1(self):
+    with mock.patch('builtins.input', side_effect = ["-1-1", "0-2"]):
+      self.assertEqual(retrieve_param.input_dataset_features_col(), "0-2")
+
+  def test_number_input_dataset_features_col_case_2(self):
+    with mock.patch('builtins.input', side_effect = ["20-10", "10-20"]):
+      self.assertEqual(retrieve_param.input_dataset_features_col(), "10-20")
+
+  def test_number_input_dataset_features_col_case_3(self):
+    with mock.patch('builtins.input', side_effect = ["1--2", "1-2"]):
+      self.assertEqual(retrieve_param.input_dataset_features_col(), "1-2")
+
+  def test_number_input_dataset_features_col_case_4(self):
+    with mock.patch('builtins.input', side_effect = ["1.5--2.5", "1-2"]):
+      self.assertEqual(retrieve_param.input_dataset_features_col(), "1-2")
+
+
+# Input_dataset Label Column
+  def test_number_input_dataset_label_col_case_0(self):
+    with mock.patch('builtins.input', side_effect = ["3.14", "1"]):
+      self.assertEqual(retrieve_param.input_dataset_label_col(), "1")
+
+  def test_number_input_dataset_label_col_case_1(self):
+    with mock.patch('builtins.input', return_value="0"):
+      self.assertEqual(retrieve_param.input_dataset_label_col(), "0")
+
+  def test_number_input_dataset_label_col_case_2(self):
+    with mock.patch('builtins.input', side_effect = ["-1", "1"]):
+      self.assertEqual(retrieve_param.input_dataset_label_col(), "1")
+
+  def test_number_input_dataset_label_col_case_3(self):
+    with mock.patch('builtins.input', return_value="100"):
+      self.assertEqual(retrieve_param.input_dataset_label_col(), "100")
+
+
+# Input Out Details
+  def test_number_out_detail_case_0(self):
+    with mock.patch('builtins.input', side_effect = ["1", "n"]):
+      self.assertEqual(retrieve_param.input_out_detail(), "false")
+
   def test_number__out_detail_case_1(self):
-    with mock.patch('builtins.input', return_value="-100"):
-      self.assertEqual(retrieve_param.input_out_detail(), None)
+    with mock.patch('builtins.input', side_effect = ["-100", "yes"]):
+      self.assertEqual(retrieve_param.input_out_detail(), "true")
+
+
+# PCA input reduction
+  def test_number_input_pca_reduction_case_0(self):
+    with mock.patch('builtins.input', side_effect = ["3.14", "1"]):
+      self.assertEqual(retrieve_param.input_pca_reduction(), "1")
+
+  def test_number_input_pca_reduction_case_1(self):
+    with mock.patch('builtins.input', side_effect = ["3.14", "0"]):
+      self.assertEqual(retrieve_param.input_pca_reduction(), "0")
+
+  def test_number_input_pca_reduction_case_2(self):
+    with mock.patch('builtins.input', side_effect = ["3.14", "0.45"]):
+      self.assertEqual(retrieve_param.input_pca_reduction(), "0.45")
+
+  def test_number_input_pca_reduction_case_4(self):
+    with mock.patch('builtins.input', side_effect = ["3.14", "-1", "0.45"]):
+      self.assertEqual(retrieve_param.input_pca_reduction(), "0.45")
+
+  def test_number_input_pca_reduction_case_5(self):
+    with mock.patch('builtins.input', return_value="1"):
+      self.assertEqual(retrieve_param.input_pca_reduction(), "1")
+
+  def test_number_input_pca_reduction_case_6(self):
+    with mock.patch('builtins.input', return_value="20"):
+      self.assertEqual(retrieve_param.input_pca_reduction(), "20")
 
 
 ##############
 # String Cases
 ##############
 # AdaBoost Input Estimators
-  @skip("ADABOOST_EMP_STRING")
   def test_string_adaboost_estimators_case_0(self):
-    with mock.patch('builtins.input', return_value=''):
-      self.assertEqual(retrieve_param.adaboost_input_estimators(), None)
+    with mock.patch('builtins.input', side_effect = ['', "1"]):
+      self.assertEqual(retrieve_param.input_adaboost_estimators(), "1")
 
-  @skip("ADABOOST_ERR_IN_STRING")
   def test_string_adaboost_estimators_case_1(self):
-    with mock.patch('builtins.input', return_value="some string"):
-      self.assertEqual(retrieve_param.adaboost_input_estimators(), None)
+    with mock.patch('builtins.input', side_effect = ["some string", "1"]):
+      self.assertEqual(retrieve_param.input_adaboost_estimators(), "1")
 
 
 # Input Dataset
-  def test_string_dataset_case_0(self):
+  def test_string_input_dataset_case_0(self):
     with mock.patch('builtins.input', return_value="some purposely fail input, captured in the set func"):
       self.assertEqual(retrieve_param.input_dataset(), "some purposely fail input, captured in the set func")
 
-  def test_string_dataset_case_1(self):
+  def test_string_input_dataset_case_1(self):
    with mock.patch('builtins.input', return_value="./File/some_loc/dataset/file.csv"):
       self.assertEqual(retrieve_param.input_dataset(), "./File/some_loc/dataset/file.csv")
 
-  @skip("ADABOOST_EMP_STRING")
-  def test_string_dataset_case_2(self):
-   with mock.patch('builtins.input', return_value=''):
-      self.assertEqual(retrieve_param.input_dataset(), None)
+  def test_string_input_dataset_case_2(self):
+   with mock.patch('builtins.input', side_effect = ['', "some string!"]):
+      self.assertEqual(retrieve_param.input_dataset(), "some string!")
 
-  def test_string_dataset_case_3(self):
+  def test_string_input_dataset_case_3(self):
     with mock.patch('builtins.input', side_effect = [" test", " test ", "test "]):
       self.assertEqual(retrieve_param.input_dataset(), "test")
       self.assertEqual(retrieve_param.input_dataset(), "test")
@@ -146,15 +181,13 @@ class TestRetrieveParam(TestCase):
 
 
 # Input Dataset Sample Size
-  @skip("ADABOOST_EMP_STRING")
   def test_string_dataset_sample_size_case_0(self):
-    with mock.patch('builtins.input', return_value=''):
-      self.assertEqual(retrieve_param.input_dataset_sample_size(), None)
+    with mock.patch('builtins.input', side_effect = ['', "1"]):
+      self.assertEqual(retrieve_param.input_dataset_sample_size(), "1")
 
-  @skip("ADABOOST_ERR_IN_STRING")
   def test_string_dataset_sample_size_case_1(self):
-    with mock.patch('builtins.input', return_value="some string"):
-      self.assertEqual(retrieve_param.input_dataset_sample_size(), None)
+    with mock.patch('builtins.input', side_effect = ["some string", "1"]):
+      self.assertEqual(retrieve_param.input_dataset_sample_size(), "1")
 
 
 # Input Out Details
@@ -174,10 +207,39 @@ class TestRetrieveParam(TestCase):
     with mock.patch('builtins.input', return_value="n"):
       self.assertEqual(retrieve_param.input_out_detail(), "false")
 
-  @skip("OUT_DETAIL_IN_STR")
   def test_string_out_detail_case_4(self):
-    with mock.patch('builtins.input', return_value="some string"):
-      self.assertEqual(retrieve_param.input_out_detail(), None)
+    with mock.patch('builtins.input',side_effect = ["some string", "Yes"]):
+      self.assertEqual(retrieve_param.input_out_detail(), "true")
+
+
+# PCA input reduction
+  def test_string_input_pca_reduction_case_0(self):
+    with mock.patch('builtins.input', return_value="nOne"):
+      self.assertEqual(retrieve_param.input_pca_reduction(), "none")
+
+  def test_string_input_pca_reduction_case_1(self):
+    with mock.patch('builtins.input', return_value="NONE"):
+      self.assertEqual(retrieve_param.input_pca_reduction(), "none")
+
+  def test_string_input_pca_reduction_case_2(self):
+    with mock.patch('builtins.input', return_value="None"):
+      self.assertEqual(retrieve_param.input_pca_reduction(), "none")
+
+  def test_string_input_pca_reduction_case_3(self):
+    with mock.patch('builtins.input', return_value="defaulT"):
+      self.assertEqual(retrieve_param.input_pca_reduction(), "default")
+
+  def test_string_input_pca_reduction_case_4(self):
+    with mock.patch('builtins.input', return_value="DEFAULT"):
+      self.assertEqual(retrieve_param.input_pca_reduction(), "default")
+
+  def test_string_input_pca_reduction_case_5(self):
+    with mock.patch('builtins.input', return_value="default"):
+      self.assertEqual(retrieve_param.input_pca_reduction(), "default")
+
+  def test_string_input_pca_reduction_case_6(self):
+    with mock.patch('builtins.input', side_effect = ["3.14", "none"]):
+      self.assertEqual(retrieve_param.input_pca_reduction(), "none")
 
 if __name__ == '__main__':
   unittest.main()

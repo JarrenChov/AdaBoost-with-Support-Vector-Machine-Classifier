@@ -9,7 +9,7 @@ class TestSetParam(TestCase):
 #########################
 # Boolean Cases as String
 #########################
-# AdaBoost Input Estimators
+# AdaBoost Estimators
   def test_boolean_adaboost_estimators_case_0(self):
     testcase = "True"
     self.assertEqual(set_param.adaboost_estimators(testcase), None)
@@ -43,6 +43,30 @@ class TestSetParam(TestCase):
   def test_boolean_dataset_case_1(self):
     testcase = "False"
     self.assertEqual(set_param.dataset(testcase), None)
+
+
+# Dataset label column
+  def test_boolean_dataset_label_col_case_0(self):
+    testcase = "True", "False"
+    self.assertEqual(set_param.dataset_label_col(*testcase), None)
+
+  def test_boolean_dataset_label_col_case_1(self):
+    testcase = "False", "True"
+    self.assertEqual(set_param.dataset_label_col(*testcase), None)
+
+
+# Dataset feature columns
+  def test_boolean_dataset_feature_cols_case_0(self):
+    testcase = "True", "False"
+    test_value_start_col, test_value_end_col = set_param.dataset_feature_cols(*testcase)
+    self.assertEqual(test_value_start_col, None)
+    self.assertEqual(test_value_end_col, None)
+
+  def test_boolean_dataset_feature_cols_case_1(self):
+    testcase = "False", "True"
+    test_value_start_col, test_value_end_col = set_param.dataset_feature_cols(*testcase)
+    self.assertEqual(test_value_start_col, None)
+    self.assertEqual(test_value_end_col, None)
 
 
 # Dataset Sample Test Size
@@ -115,10 +139,20 @@ class TestSetParam(TestCase):
     self.assertEqual(constants.OUTPUT_DETAIL, False)
 
 
+# PCA Reduction
+  def test_boolean_pca_reduction_case_0(self):
+    testcase = "false", "true"
+    self.assertEqual(set_param.pca_reduction(*testcase), None)
+
+  def test_boolean_pca_reduction_case_1(self):
+    testcase = "true", "false"
+    self.assertEqual(set_param.pca_reduction(*testcase), None)
+
+
 ################################
 # Number / Float Cases as String
 ################################
-# AdaBoost Input Estimators
+# AdaBoost Estimators
   def test_number_adaboost_estimators_case_0(self):
     testcase = "-1"
     self.assertEqual(set_param.adaboost_estimators(testcase), None)
@@ -152,6 +186,100 @@ class TestSetParam(TestCase):
   def test_number_dataset_case_3(self):
     testcase = "3.14"
     self.assertEqual(set_param.dataset(testcase), None)
+
+
+# Dataset label column
+  def test_number_dataset_label_col_case_0(self):
+    testcase = "-1", "-1"
+    self.assertEqual(set_param.dataset_label_col(*testcase), None)
+
+  def test_number_dataset_label_col_case_1(self):
+    testcase = "-1", "1"
+    self.assertEqual(set_param.dataset_label_col(*testcase), None)
+
+  def test_number_dataset_label_col_case_2(self):
+    testcase = "0", "1"
+    self.assertEqual(set_param.dataset_label_col(*testcase), 0)
+
+  def test_number_dataset_label_col_case_3(self):
+    testcase = "0", 1
+    self.assertEqual(set_param.dataset_label_col(*testcase), 0)
+
+  def test_number_dataset_label_col_case_4(self):
+    testcase = "3.14", 1
+    self.assertEqual(set_param.dataset_label_col(*testcase), None)
+
+  def test_number_dataset_label_col_case_5(self):
+    testcase = "1", "3.14"
+    self.assertEqual(set_param.dataset_label_col(*testcase), None)
+
+  def test_number_dataset_label_col_case_6(self):
+    testcase = "3.14", "3.14"
+    self.assertEqual(set_param.dataset_label_col(*testcase), None)
+
+  def test_number_dataset_label_col_case_7(self):
+    testcase = "0", "0"
+    self.assertEqual(set_param.dataset_label_col(*testcase), None)
+
+  def test_number_dataset_label_col_case_8(self):
+    testcase = "10", "10"
+    self.assertEqual(set_param.dataset_label_col(*testcase), 10)
+
+
+# Dataset feature columns
+  def test_number_dataset_feature_cols_case_0(self):
+    testcase = "-1--1", "1"
+    test_value_start_col, test_value_end_col = set_param.dataset_feature_cols(*testcase)
+    self.assertEqual(test_value_start_col, None)
+    self.assertEqual(test_value_end_col, None)
+
+  def test_number_dataset_feature_cols_case_1(self):
+    testcase = "1--1", "1"
+    test_value_start_col, test_value_end_col = set_param.dataset_feature_cols(*testcase)
+    self.assertEqual(test_value_start_col, None)
+    self.assertEqual(test_value_end_col, None)
+
+  def test_number_dataset_feature_cols_case_2(self):
+    testcase = "1-1", "1"
+    test_value_start_col, test_value_end_col = set_param.dataset_feature_cols(*testcase)
+    self.assertEqual(test_value_start_col, None)
+    self.assertEqual(test_value_end_col, None)
+
+  def test_number_dataset_feature_cols_case_3(self):
+    testcase = "1-2", "2"
+    test_value_start_col, test_value_end_col = set_param.dataset_feature_cols(*testcase)
+    self.assertEqual(test_value_start_col, 1)
+    self.assertEqual(test_value_end_col, 2)
+
+  def test_number_dataset_feature_cols_case_4(self):
+    testcase = "1-20", "10"
+    test_value_start_col, test_value_end_col = set_param.dataset_feature_cols(*testcase)
+    self.assertEqual(test_value_start_col, None)
+    self.assertEqual(test_value_end_col, None)
+
+  def test_number_dataset_feature_cols_case_5(self):
+    testcase = "1-20", 0
+    test_value_start_col, test_value_end_col = set_param.dataset_feature_cols(*testcase)
+    self.assertEqual(test_value_start_col, None)
+    self.assertEqual(test_value_end_col, None)
+
+  def test_number_dataset_feature_cols_case_6(self):
+    testcase = "0-0", 0
+    test_value_start_col, test_value_end_col = set_param.dataset_feature_cols(*testcase)
+    self.assertEqual(test_value_start_col, None)
+    self.assertEqual(test_value_end_col, None)
+
+  def test_number_dataset_feature_cols_case_7(self):
+    testcase = "1", 0
+    test_value_start_col, test_value_end_col = set_param.dataset_feature_cols(*testcase)
+    self.assertEqual(test_value_start_col, None)
+    self.assertEqual(test_value_end_col, None)
+
+  def test_number_dataset_feature_cols_case_8(self):
+    testcase = "3.14-3.5", 0
+    test_value_start_col, test_value_end_col = set_param.dataset_feature_cols(*testcase)
+    self.assertEqual(test_value_start_col, None)
+    self.assertEqual(test_value_end_col, None)
 
 
 # Dataset Sample Test Size
@@ -274,6 +402,49 @@ class TestSetParam(TestCase):
     set_param.out_detail(testcase)
     self.assertEqual(constants.OUTPUT_DETAIL, False)
 
+
+# PCA Reduction
+  def test_number_pca_reduction_case_0(self):
+    testcase = "0", "0"
+    self.assertEqual(set_param.pca_reduction(*testcase), "none")
+
+  def test_number_pca_reduction_case_1(self):
+    testcase = "1", "20"
+    self.assertEqual(set_param.pca_reduction(*testcase), "default")
+
+  def test_number_pca_reduction_case_2(self):
+    testcase = "14", "20"
+    self.assertEqual(set_param.pca_reduction(*testcase), 14)
+
+  def test_number_pca_reduction_case_3(self):
+    testcase = "25", "20"
+    self.assertEqual(set_param.pca_reduction(*testcase), None)
+
+  def test_number_pca_reduction_case_4(self):
+    testcase = "1.0", "20"
+    self.assertEqual(set_param.pca_reduction(*testcase), "default")
+
+  def test_number_pca_reduction_case_5(self):
+    testcase = "-1.0", "20"
+    self.assertEqual(set_param.pca_reduction(*testcase), None)
+
+  def test_number_pca_reduction_case_6(self):
+    testcase = "0.0", "20"
+    self.assertEqual(set_param.pca_reduction(*testcase), "none")
+
+  def test_number_pca_reduction_case_7(self):
+    testcase = "0.45", "20"
+    self.assertEqual(set_param.pca_reduction(*testcase), 0.45)
+
+  def test_number_pca_reduction_case_8(self):
+    testcase = "1.45", "20"
+    self.assertEqual(set_param.pca_reduction(*testcase), None)
+
+  def test_number_pca_reduction_case_9(self):
+    testcase = "-1.45", "20"
+    self.assertEqual(set_param.pca_reduction(*testcase), None)
+
+
 ######################
 # List Cases as String
 ######################
@@ -289,6 +460,30 @@ class TestSetParam(TestCase):
     self.assertEqual(set_param.dataset(testcase), None)
 
 
+# Dataset label column
+  def test_list_dataset_label_col_case_0(self):
+    testcase = "True", "False"
+    self.assertEqual(set_param.dataset_label_col(*testcase), None)
+
+  def test_list_dataset_label_col_case_1(self):
+    testcase = "False", "True"
+    self.assertEqual(set_param.dataset_label_col(*testcase), None)
+
+
+# Dataset feature columns
+  def test_list_dataset_feature_cols_case_0(self):
+    testcase = ["SomeTextThatShouldNotExists", "1", "3.14"], ["SomeTextThatShouldNotExists", "1", "3.14"]
+    test_value_start_col, test_value_end_col = set_param.dataset_feature_cols(*testcase)
+    self.assertEqual(test_value_start_col, None)
+    self.assertEqual(test_value_end_col, None)
+
+  def test_list_dataset_feature_cols_case_1(self):
+    testcase = ["SomeTextThatShouldNotExists", "1", "3.14"], ["SomeTextThatShouldNotExists", "1", "3.14"]
+    test_value_start_col, test_value_end_col = set_param.dataset_feature_cols(*testcase)
+    self.assertEqual(test_value_start_col, None)
+    self.assertEqual(test_value_end_col, None)
+
+
 # Dataset Sample Test Size
   def test_list_dataset_sample_test_size_case_0(self):
     testcase = ["SomeTextThatShouldNotExists", "1", "3.14"], ["SomeTextThatShouldNotExists", "1", "3.14"]
@@ -302,6 +497,13 @@ class TestSetParam(TestCase):
     testcase = ["SomeTextThatShouldNotExists", "1", "3.14"]
     set_param.out_detail(testcase)
     self.assertEqual(constants.OUTPUT_DETAIL, False)
+
+
+# PCA Reduction
+  def test_list_pca_reduction_case_0(self):
+    testcase = ["SomeTextThatShouldNotExists", "1", "3.14"], ["SomeTextThatShouldNotExists", "1", "3.14"]
+    self.assertEqual(set_param.pca_reduction(*testcase), None)
+
 
 ##############
 # String Cases
@@ -328,6 +530,60 @@ class TestSetParam(TestCase):
   def test_string_dataset_case_3(self):
     testcase = "./data/fake/wdbc_data.csv"
     self.assertEqual(set_param.dataset(testcase), None)
+
+
+# Dataset label column
+  def test_string_dataset_label_col_case_0(self):
+    testcase = "SomeNonExistantTest", "1"
+    self.assertEqual(set_param.dataset_label_col(*testcase), None)
+
+  def test_string_dataset_label_col_case_1(self):
+    testcase = "SomeNonExistantTest", 1
+    self.assertEqual(set_param.dataset_label_col(*testcase), None)
+
+  def test_string_dataset_label_col_case_2(self):
+    testcase = "SomeNonExistantTest", -1
+    self.assertEqual(set_param.dataset_label_col(*testcase), None)
+
+  def test_string_dataset_label_col_case_3(self):
+    testcase = "SomeNonExistantTest", 10
+    self.assertEqual(set_param.dataset_label_col(*testcase), None)
+
+  def test_string_dataset_label_col_case_4(self):
+    testcase = "SomeNonExistantTest", 0
+    self.assertEqual(set_param.dataset_label_col(*testcase), None)
+
+
+# Dataset feature columns
+  def test_string_dataset_feature_cols_case_0(self):
+    testcase = "SomeNonExistantTest", "1"
+    test_value_start_col, test_value_end_col = set_param.dataset_feature_cols(*testcase)
+    self.assertEqual(test_value_start_col, None)
+    self.assertEqual(test_value_end_col, None)
+
+  def test_string_dataset_feature_cols_case_1(self):
+    testcase = "SomeNonExistantTest", 1
+    test_value_start_col, test_value_end_col = set_param.dataset_feature_cols(*testcase)
+    self.assertEqual(test_value_start_col, None)
+    self.assertEqual(test_value_end_col, None)
+
+  def test_string_dataset_feature_cols_case_2(self):
+    testcase = "SomeNonExistantTest", -1
+    test_value_start_col, test_value_end_col = set_param.dataset_feature_cols(*testcase)
+    self.assertEqual(test_value_start_col, None)
+    self.assertEqual(test_value_end_col, None)
+
+  def test_string_dataset_feature_cols_case_3(self):
+    testcase = "SomeNonExistantTest", 10
+    test_value_start_col, test_value_end_col = set_param.dataset_feature_cols(*testcase)
+    self.assertEqual(test_value_start_col, None)
+    self.assertEqual(test_value_end_col, None)
+
+  def test_string_dataset_feature_cols_case_4(self):
+    testcase = "SomeNonExistantTest", 0
+    test_value_start_col, test_value_end_col = set_param.dataset_feature_cols(*testcase)
+    self.assertEqual(test_value_start_col, None)
+    self.assertEqual(test_value_end_col, None)
 
 
 # Dataset Sample Test Size
@@ -379,6 +635,24 @@ class TestSetParam(TestCase):
     testcase = "SomeTextThatShouldNotExists"
     set_param.out_detail(testcase)
     self.assertEqual(constants.OUTPUT_DETAIL, False)
+
+
+# PCA Reduction
+  def test_string_pca_reduction_case_0(self):
+    testcase = "none", "none"
+    self.assertEqual(set_param.pca_reduction(*testcase), "none")
+
+  def test_string_pca_reduction_case_1(self):
+    testcase = "default", "default"
+    self.assertEqual(set_param.pca_reduction(*testcase), "default")
+
+  def test_string_pca_reduction_case_2(self):
+    testcase = "default", 4
+    self.assertEqual(set_param.pca_reduction(*testcase), "default")
+
+  def test_string_pca_reduction_case_2(self):
+    testcase = "something that will fail", 4
+    self.assertEqual(set_param.pca_reduction(*testcase), None)
 
 if __name__ == '__main__':
   unittest.main()

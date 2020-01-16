@@ -27,6 +27,67 @@ def dataset(value):
     print("--set Dataset-File: %s" % (dataset_filename))
   return dataset_path
 
+# Before assinging, check feature label is positioned on a valid column
+def dataset_label_col(value, dataset_max_col):
+  label_col = convert_type.to_int(value)
+  dataset_max_col = convert_type.to_int(dataset_max_col)
+
+  value_check = (
+    label_col is None
+    or label_col < 0
+    or dataset_max_col is None
+    or dataset_max_col <= 0
+  )
+
+  if value_check:
+    print("Invalid dataset label column index. Exiting.")
+    return None
+
+  if label_col > dataset_max_col:
+    print("Invalid dataset label column index (Label Columns Exceeds Dimension). Exiting.")
+    return None
+
+  if constants.OUTPUT_DETAIL is True:
+    print("--set Dataset-Label-Column: %d" % (label_col))
+  return label_col
+
+
+# Before assinging, check starting and ending feature range are valid columns and values
+def dataset_feature_cols(value, dataset_max_col):
+  if '-' not in value:
+    print("Invalid dataset feature columns (Null Feature Range). Exiting.")
+    return None, None
+
+  seperator = value.replace(" ", '').split("-", 1)
+  start_col = seperator[0]
+  end_col = seperator[1]
+
+  feature_start_col = convert_type.to_int(start_col)
+  feature_end_col = convert_type.to_int(end_col)
+  dataset_max_col = convert_type.to_int(dataset_max_col)
+
+  value_check = (
+     feature_start_col is None
+     or feature_start_col < 0
+     or feature_end_col is None
+     or feature_end_col < 0
+     or dataset_max_col is None
+     or dataset_max_col <= 0
+     or feature_start_col >= feature_end_col
+  )
+  if value_check:
+    print("Invalid dataset feature columns. Exiting.")
+    return None, None
+
+  if feature_start_col >= dataset_max_col or feature_end_col > dataset_max_col:
+    print("Invalid dataset feature column index (Feature Columns Exceeds Dimension). Exiting.")
+    return None, None
+
+  if constants.OUTPUT_DETAIL is True:
+    print("--set Dataset-Feature-Column: [%s - %s]"
+          % (feature_start_col, feature_end_col))
+  return feature_start_col, feature_end_col
+
 
 # Before assinging, check data sample and test size are valid values
 def dataset_sample_test_size(value, sample_size_max):
@@ -64,11 +125,13 @@ def pca_reduction(value, feature_count_max):
   elif value == "default":
     reduction = "default"
   else:
-    print("--init -type PCA-Reduction: %s" % ("<class 'int'>"))
+    if constants.OUTPUT_DETAIL is True:
+      print("--init -type PCA-Reduction: %s" % ("<class 'int'>"))
     reduction = convert_type.to_int(value)
 
     if reduction is None:
-      print("--init -type PCA-Reduction: %s" % ("<class 'float'>"))
+      if constants.OUTPUT_DETAIL is True:
+        print("--init -type PCA-Reduction: %s" % ("<class 'float'>"))
       reduction = convert_type.to_float(value)
       if reduction is not None:
         if reduction >= 0.0 and reduction <= 1.0:
@@ -84,6 +147,11 @@ def pca_reduction(value, feature_count_max):
         print("Invalid PCA reduction size (Invalid Reduction Size). Exiting.")
         return None
     else:
+      feature_count_max = convert_type.to_int(feature_count_max)
+      if feature_count_max is None:
+        print("Invalid PCA feature count (Invalid Feature Count). Exiting.")
+        return None
+
       if reduction >= 0 and reduction <= feature_count_max:
         if reduction == 0:
           reduction = "none"
@@ -97,9 +165,9 @@ def pca_reduction(value, feature_count_max):
   if constants.OUTPUT_DETAIL is True:
     if check_type.is_int(reduction) or check_type.is_float(reduction):
       if check_type.is_float(reduction):
-        print("--set PCA-Reduction: %s [Proportion]" % (reduction))
+        print("--set PCA-Reduction: %s [Variance Proportion]" % (reduction))
       else:
-        print("--set PCA-Reduction: %d [Feature]" % (reduction))
+        print("--set PCA-Reduction: %d [Reduced Features]" % (reduction))
     else:
       print("--set PCA-Reduction: %s" % (reduction))
   return reduction

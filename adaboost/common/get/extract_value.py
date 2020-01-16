@@ -20,5 +20,4 @@ def arg_value(keyword, raw_input):
     value = value.replace('=', '', 1).strip().lower()
     if value is not '':
       return value
-
   return None
