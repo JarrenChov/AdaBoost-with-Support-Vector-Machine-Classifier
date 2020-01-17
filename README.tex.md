@@ -58,6 +58,7 @@ AdaBoost-with-Support-Vector-Machine-Classifier
 │   │   └── __init__.py
 │   ├── test
 │   │   ├── __init__.py
+│   │   ├── test_check_type.py
 │   │   ├── test_convert_type.py
 │   │   ├── test_extract_value.py
 │   │   ├── test_retrieve_param.py
