@@ -9,6 +9,10 @@ from adaboost.common.set import set_param
 from adaboost.learning.dimension_reduction import pca
 
 def run():
+# ============================================
+# Initlizing default values
+# ============================================
+
   # Data parameters
   raw_dataset = None
   raw_dataset_label_col = None
@@ -45,9 +49,14 @@ def run():
   # Initialize global variables
   constants.initialize()
 
+
 #####################
 # START APPLICATION #
 #####################
+
+# ============================================
+# Retrieve all parameter values for initlizing
+# ============================================
 
   # Extract parameter values from user input or application arguments
   if len(sys.argv) > 1:
@@ -95,6 +104,11 @@ def run():
   # Initialize application variables with extracted parameter values
   if constants.OUTPUT_DETAIL is True:
     print("Initialize:")
+
+
+# ==========================================
+# Initlizing values with obtained parameters
+# ==========================================
 
   set_param.out_detail(raw_out_detail)
 
@@ -161,6 +175,11 @@ def run():
     print("Exiting. (ERR_SET_PARAM)")
     sys.exit(-1)
 
+
+# ================================================================================
+# Print out all initialized parameter values as a confirmation everthing succeeded
+# ================================================================================
+
   print("\n=== Initialized Parameter Details ===")
   print("> Dataset: %s\n"
           "\t- Malignant Label: %s\n"
@@ -177,6 +196,11 @@ def run():
           dataset_sample_size, dataset_test_size,
           pca_reduction,
           adaboost_estimators))
+
+
+# ======================
+# PCA application starts
+# ======================
 
   # Execute dimensionality reduction on dataset by using PCA
   if pca_reduction != 'none':

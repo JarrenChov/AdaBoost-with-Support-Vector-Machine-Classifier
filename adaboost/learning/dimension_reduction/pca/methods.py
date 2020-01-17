@@ -30,16 +30,11 @@ def calculate_eigen_decomposition(covariance_matrix):
   return eigenvalue, eigenvector, sorted_eigen_index
 
 
-# Project sorted eigenvectors onto initial feature dataset
-def data_projection(normalized_features, eigenvector, sorted_eigen_index):
-  return np.dot(normalized_features, eigenvector[:, sorted_eigen_index].real)
-
-
 # Reduce feature dataset dimensiosn based on either:
 #   - A cumlative variance percentage of the total dataset up to a user specified variance threshold
 #   - Default space by taking first x ammount of features until a variance of 1 is reached
 #   - A user specified feature range
-def reduce_dimensionality(reduction_size, projection, sorted_eigen_index, eigenvalue):
+def reduce_dimensionality(reduction_size, sorted_eigen_index, eigenvalue):
   reduced_feature_size = None
   reduced_projection = None
   reduced_eigen_index = None
@@ -66,6 +61,10 @@ def reduce_dimensionality(reduction_size, projection, sorted_eigen_index, eigenv
   elif check_type.is_int(reduction_size):
     reduced_feature_size = reduction_size
 
-  reduced_projection = projection[:, 0 : reduced_feature_size]
   reduced_eigen_index = sorted_eigen_index[:reduced_feature_size]
-  return [reduced_feature_size, reduced_projection, reduced_eigen_index]
+  return [reduced_feature_size, reduced_eigen_index]
+
+
+# Project sorted eigenvectors onto initial feature dataset
+def data_projection(normalized_features, eigenvector, sorted_eigen_index):
+  return np.dot(normalized_features, eigenvector[:, sorted_eigen_index].real)
