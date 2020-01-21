@@ -6,5 +6,6 @@ from .retrieve_param import (
   arg_dataset_sample_size,  input_dataset_sample_size,
   arg_out_detail, input_out_detail,
   arg_pca_reduction, input_pca_reduction,
+  arg_svm_regularizer_c, input_svm_regularizer_c,
   arg_adaboost_estimators, input_adaboost_estimators
 )

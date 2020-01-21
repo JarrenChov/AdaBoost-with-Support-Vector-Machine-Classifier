@@ -7,6 +7,7 @@ from adaboost.common.check import check_type
 from adaboost.common.get import retrieve_param
 from adaboost.common.set import set_param
 from adaboost.learning.dimension_reduction import pca
+from adaboost.learning.weak_learner.classifier import svm
 
 def run():
 # ============================================
@@ -19,6 +20,7 @@ def run():
   raw_dataset_feature_cols = None
   raw_dataset_sample_size = None
   raw_pca_reduction = None
+  raw_svm_regularizer_c = None
   raw_adaboost_estimators = None
   raw_out_detail = None
 
@@ -26,9 +28,9 @@ def run():
   DATASET = None
   DATASET_FILEPATH = None
   dataset_label_col = None
-  datset_feature_count = None
-  datset_feature_start_col = None
-  datset_feature_end_col = None
+  dataset_feature_count = None
+  dataset_feature_start_col = None
+  dataset_feature_end_col = None
 
   # Training set data
   dataset_sample_size = None
@@ -40,10 +42,13 @@ def run():
   dataset_test_set = None
   dataset_test_label = None
 
-  # PCA parameters
+  # PCA data
   pca_reduction = None
 
-  # AdaBoost parameters
+  # SVM data
+  svm_regularizer_c = None
+
+  # AdaBoost data
   adaboost_estimators = None
 
   # Initialize global variables
@@ -67,6 +72,7 @@ def run():
       raw_dataset_feature_cols = retrieve_param.arg_dataset_features_col()
     raw_dataset_sample_size = retrieve_param.arg_dataset_sample_size()
     raw_pca_reduction = retrieve_param.arg_pca_reduction()
+    raw_svm_regularizer_c = retrieve_param.arg_svm_regularizer_c()
     raw_adaboost_estimators = retrieve_param.arg_adaboost_estimators()
     raw_out_detail = retrieve_param.arg_out_detail()
   else:
@@ -77,6 +83,7 @@ def run():
       raw_dataset_feature_cols = retrieve_param.input_dataset_features_col()
     raw_dataset_sample_size = retrieve_param.input_dataset_sample_size()
     raw_pca_reduction = retrieve_param.input_pca_reduction()
+    raw_svm_regularizer_c = retrieve_param.input_svm_regularizer_c()
     raw_adaboost_estimators = retrieve_param.input_adaboost_estimators()
     raw_out_detail = retrieve_param.input_out_detail()
 
@@ -113,22 +120,37 @@ def run():
   set_param.out_detail(raw_out_detail)
 
   # If dataset file exists, set and initialize dataset as a pandas dataframe,
-  # also partition datset into corresponding training and testing set
+  # also partition dataset into corresponding training and testing set
   DATASET_FILEPATH = set_param.dataset(raw_dataset)
   if DATASET_FILEPATH is not None:
-    # If default dataset specified, pre-initialize with following parameter values for:
-    # dataset_label_col, dataset_feature_start_col, dataset_feature_end_col
+    # If default dataset is specified, pre-initialize parameter values,
+    # else use user specified parameter values
     if raw_dataset == 'default':
       if constants.OUTPUT_DETAIL is True:
         print("--set Dataset-Label-Column: 1")
         print("--set Dataset-Feature-Column: [2 - 32]")
       # convert labels in default WDBC_dataset from string [M, B] to int [1, -1]
-      DATASET = format_dataset.dataset_labels(DATASET_FILEPATH)
+      DATASET = format_dataset.dataset_default_label(DATASET_FILEPATH)
       dataset_label_col = 1
-      datset_feature_start_col = 2
-      datset_feature_end_col = 32
+      dataset_feature_start_col = 2
+      dataset_feature_end_col = 32
     else:
       DATASET = pd.read_csv(DATASET_FILEPATH, header=None)
+      dataset_label_col = set_param.dataset_label_col(raw_dataset_label_col, DATASET.shape[1])
+      dataset_feature_start_col, dataset_feature_end_col = set_param.dataset_feature_cols(raw_dataset_feature_cols, DATASET.shape[1])
+
+    # Application initializer check to ensure all column parameters have been set
+    set_column_none_check = (
+      dataset_label_col is None
+      or dataset_feature_start_col is None
+      or dataset_feature_end_col is None
+    )
+    if set_column_none_check:
+      print("Exiting. (ERR_SET_PARAM_COL)")
+      sys.exit(-1)
+
+    # Update count for total number of features
+    dataset_feature_count = dataset_feature_end_col - dataset_feature_start_col
 
     # Partition dataset into training and testing set
     dataset_sample_size, dataset_test_size = set_param.dataset_sample_test_size(raw_dataset_sample_size, DATASET.shape[0])
@@ -137,29 +159,23 @@ def run():
         print("--set -init Dataset-Train-Set")
         print("--set -init Dataset-Test-Set")
       dataset_train_set = DATASET.head(dataset_sample_size)
+      dataset_train_label = format_dataset.dataset_extract_columns(dataset_train_set, dataset_label_col)
+      dataset_train_set = format_dataset.dataset_extract_features (
+                            dataset_train_set,
+                            dataset_feature_start_col,
+                            dataset_feature_end_col
+                          )
+
       dataset_test_set = DATASET.tail(dataset_test_size)
+      dataset_test_label = format_dataset.dataset_extract_columns(dataset_test_set, dataset_label_col)
+      dataset_test_set = format_dataset.dataset_extract_features (
+                            dataset_test_set,
+                            dataset_feature_start_col,
+                            dataset_feature_end_col
+                          )
 
-    # If dataset was specified, initialize the following parameter values from retrieved values:
-    # dataset_label_col, dataset_feature_start_col, dataset_feature_end_col
-    if raw_dataset != 'default':
-      dataset_label_col = set_param.dataset_label_col(raw_dataset_label_col, DATASET.shape[1])
-      datset_feature_start_col, datset_feature_end_col = set_param.dataset_feature_cols(raw_dataset_feature_cols, DATASET.shape[1])
-
-    # Application initializer check to ensure all column parameters have been set
-    set_column_none_check = (
-      dataset_label_col is None
-      or datset_feature_start_col is None
-      or datset_feature_end_col is None
-    )
-    if set_column_none_check:
-      print("Exiting. (ERR_SET_PARAM_COL)")
-      sys.exit(-1)
-
-    dataset_test_label = format_dataset.extract_columns(dataset_test_set, dataset_label_col)
-    dataset_train_label = format_dataset.extract_columns(dataset_train_set, dataset_label_col)
-    datset_feature_count = datset_feature_end_col - datset_feature_start_col
-
-    pca_reduction = set_param.pca_reduction(raw_pca_reduction, datset_feature_count)
+    pca_reduction = set_param.pca_reduction(raw_pca_reduction, dataset_feature_count)
+    svm_regularizer_c = set_param.svm_regularizer_c(raw_svm_regularizer_c)
     adaboost_estimators = set_param.adaboost_estimators(raw_adaboost_estimators)
 
   # Application initializer check to ensure last initializers have been set and are not None
@@ -167,8 +183,9 @@ def run():
     DATASET_FILEPATH is None
     or dataset_sample_size is None
     or dataset_test_size is None
-    or datset_feature_count is None
+    or dataset_feature_count is None
     or pca_reduction is None
+    or svm_regularizer_c is None
     or adaboost_estimators is None
   )
   if set_none_check:
@@ -189,47 +206,62 @@ def run():
           "\t- Test Size: %s\n\n"
         "> PCA:\n"
           "\t- Reduction Size: %s\n\n"
+        "> SVM:\n"
+          "\t- Regularizer C: %s\n\n"
         "> AdaBoost:\n"
           "\t- Estimators: %s"
         % (DATASET_FILEPATH.rsplit('/', 1)[-1], constants.MALIGNANT_LABEL, constants.BENIGN_LABEL,
-          datset_feature_start_col, datset_feature_end_col, datset_feature_count,
+          dataset_feature_start_col, dataset_feature_end_col, dataset_feature_count,
           dataset_sample_size, dataset_test_size,
           pca_reduction,
+          svm_regularizer_c,
           adaboost_estimators))
 
 
-# ======================
-# PCA application starts
-# ======================
+# ===============
+# PCA application
+# ===============
 
   # Execute dimensionality reduction on dataset by using PCA
   if pca_reduction != 'none':
-    if constants.OUTPUT_DETAIL is True:
-      print("\n=== PCA Initialize Details ===")
+    print("\n=== PCA Initialize Details ===")
 
     reduction_value = pca.application.run (
                         pca_reduction,
                         dataset_train_set,
                         dataset_sample_size,
-                        datset_feature_count,
-                        datset_feature_start_col,
-                        datset_feature_end_col
+                        dataset_feature_count
                       )
+
     if reduction_value is None:
       print("Exiting. (ERR_MIN_THRESHOLD)")
       sys.exit(-1)
 
-    feature_order = reduction_value[2]
-    if constants.OUTPUT_DETAIL is True:
-      print("--set -update Dataset-Feature-Count")
-      print("--set -update Dataset-Train-Set")
-      print("--set -update Dataset-Test-Set")
 
-    dataset_feature_count = reduction_value[0]
-    dataset_train_set = reduction_value[1]
-    dataset_test_set = format_dataset.extract_columns(dataset_test_set, feature_order + datset_feature_start_col)
+    print("--set -update Dataset-Feature-Count: [%d] -> [%s]"
+          % (dataset_feature_count, reduction_value[2]))
+    print("--set -update Dataset-Train-Set: %s -> %s"
+          % (dataset_train_set.shape, reduction_value[0].shape))
+    print("--set -update Dataset-Test-Set: %s -> (%s, %s)"
+          % (dataset_test_set.shape, dataset_test_set.shape[0], reduction_value[2]))
+    feature_order = reduction_value[1]
+    dataset_feature_count = reduction_value[2]
+    dataset_train_set = format_dataset.pandas_dataframe(reduction_value[0])
+    dataset_test_set = format_dataset.dataset_extract_columns(dataset_test_set, feature_order)
   else:
     if constants.OUTPUT_DETAIL is True:
       print("\n--skipped PCA")
+
+
+# ===============
+# SVM application
+# ===============
+
+  print("\n=== SVM Initialize Details ===")
+  svm.application.run (
+    dataset_train_set,
+    dataset_train_label,
+    svm_regularizer_c
+  )
 
   sys.exit(0)

@@ -227,6 +227,54 @@ def input_pca_reduction():
   return result
 
 
+################
+# SVM Parameters
+################
+def arg_svm_regularizer_c():
+  result = [param for param in sys.argv if 'svm_regularizer_c' in param]
+
+  if len(result) == 0:
+    print("> [OPTIONAL] (Specify pca reduction size: svm_regularizer_c={\"default\" | \"none\" | <type 'float'>}).")
+    print("\tUsing Default: SVM-Regularizer-C=%s\n" % ('1.0'))
+    return "default"
+  elif len(result) >= 2:
+    print("> Multiple SVM regularizer C found. Check only a single SVM regularizer C is specified.\n"
+          "\tFound argument 'SVM regularizer C' duplicates: %s\n"
+          % (result))
+  else:
+    return extract_value.arg_value('svm_regularizer_c', result[0])
+  return None
+
+
+def input_svm_regularizer_c():
+  accept_param_value = False
+  result = None
+
+  while accept_param_value is False:
+    result = input("SVM regularizer parameter C: ").strip().lower()
+
+    if result == "none" or result == "default":
+      accept_param_value = True
+
+    if accept_param_value is False:
+      param_value = convert_type.to_float(result)
+
+      if check_type.is_float(param_value):
+        if param_value >= 0.0:
+          if param_value == 0.0:
+            result = 'none'
+
+          if param_value == 1.0:
+            result = 'default'
+          accept_param_value = True
+        else:
+          print("Invalid number. Try Again.\n")
+      else:
+        print("Check input is one of the following:\n"
+        "\"default\" | \"none\" | <type 'float'>\n"
+        "Try Again.\n")
+  return result
+
 #####################
 # AdaBoost Parameters
 #####################

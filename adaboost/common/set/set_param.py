@@ -25,6 +25,7 @@ def dataset(value):
 
   if constants.OUTPUT_DETAIL is True:
     print("--set Dataset-File: %s" % (dataset_filename))
+
   return dataset_path
 
 
@@ -39,7 +40,6 @@ def dataset_label_col(value, dataset_max_col):
     or dataset_max_col is None
     or dataset_max_col <= 0
   )
-
   if value_check:
     print("Invalid dataset label column index. Exiting.")
     return None
@@ -50,6 +50,7 @@ def dataset_label_col(value, dataset_max_col):
 
   if constants.OUTPUT_DETAIL is True:
     print("--set Dataset-Label-Column: %d" % (label_col))
+
   return label_col
 
 
@@ -87,6 +88,7 @@ def dataset_feature_cols(value, dataset_max_col):
   if constants.OUTPUT_DETAIL is True:
     print("--set Dataset-Feature-Column: [%s - %s]"
           % (feature_start_col, feature_end_col))
+
   return feature_start_col, feature_end_col
 
 
@@ -114,6 +116,7 @@ def dataset_sample_test_size(value, sample_size_max):
   if constants.OUTPUT_DETAIL is True:
     print("--set Dataset-Sample-Size: %d" % (sample_size))
     print("--set Dataset-Test-Size: %d" % (test_size))
+
   return sample_size, test_size
 
 
@@ -171,7 +174,35 @@ def pca_reduction(value, feature_count_max):
         print("--set PCA-Reduction: %d [Reduced Features]" % (reduction))
     else:
       print("--set PCA-Reduction: %s" % (reduction))
+
   return reduction
+
+
+# Before assinging, check SVM regularizer constant C ia a valid value
+def svm_regularizer_c(value):
+  regularizer_c = None
+
+  if value == "none":
+    regularizer_c = float(0.0)
+  elif value == "default":
+    regularizer_c = float(1.0)
+  else:
+    regularizer_c = convert_type.to_float(value)
+
+    if regularizer_c is None or regularizer < 0.0:
+      print("Invalid regularizer parameter size value C. (Invalid Regularizer C Size). Exiting.")
+      return None
+
+  if constants.OUTPUT_DETAIL is True:
+    set_type = ""
+
+    if value == "none":
+      set_type = "(None)"
+    elif value == "default":
+      set_type = "(Default)"
+    print("--set SVM-Regularizer-C: %d  %s" % (regularizer_c, set_type))
+
+  return regularizer_c
 
 
 # Before assinging, check adaboost estimator ia a valid value
@@ -184,6 +215,7 @@ def adaboost_estimators(value):
 
   if constants.OUTPUT_DETAIL is True:
     print("--set AdaBoost-Estimators: %d" % (estimators))
+
   return estimators
 
 
@@ -193,9 +225,10 @@ def out_detail(value):
 
   if out_detail_value is None:
     print("Invalid out detail value. Reverting to default.")
-    return
+    return None
 
   if constants.OUTPUT_DETAIL is True:
     print("--set Out-Detail: %s" % (out_detail_value))
   constants.OUTPUT_DETAIL = out_detail_value
-  return
+
+  return None
