@@ -147,6 +147,29 @@ class TestRetrieveParam(TestCase):
       self.assertEqual(retrieve_param.input_pca_reduction(), "20")
 
 
+# Input SVM regularizer C
+  def test_number_input_svm_regularizer_c_case_0(self):
+    with mock.patch('builtins.input', side_effect = ["-1", "1"]):
+      self.assertEqual(retrieve_param.input_svm_regularizer_c(), "default")
+
+  def test_number_input_svm_regularizer_c_case_1(self):
+    with mock.patch('builtins.input', return_value="0"):
+      self.assertEqual(retrieve_param.input_svm_regularizer_c(), "none")
+
+  def test_number_input_svm_regularizer_c_case_2(self):
+    with mock.patch('builtins.input', return_value="3.14"):
+      self.assertEqual(retrieve_param.input_svm_regularizer_c(), "3.14")
+
+  def test_number_input_svm_regularizer_c_case_3(self):
+    with mock.patch('builtins.input', return_value="1"):
+      self.assertEqual(retrieve_param.input_svm_regularizer_c(), "default")
+
+  def test_number_input_svm_regularizer_c_case_4(self):
+    with mock.patch('builtins.input', return_value="400"):
+      self.assertEqual(retrieve_param.input_svm_regularizer_c(), "400")
+
+
+
 ##############
 # String Cases
 ##############
@@ -240,6 +263,20 @@ class TestRetrieveParam(TestCase):
   def test_string_input_pca_reduction_case_6(self):
     with mock.patch('builtins.input', side_effect = ["3.14", "none"]):
       self.assertEqual(retrieve_param.input_pca_reduction(), "none")
+
+
+# Input SVM regularizer C
+  def test_string_input_svm_regularizer_c_case_0(self):
+    with mock.patch('builtins.input', side_effect = ["aaa", "DeFaUlT"]):
+      self.assertEqual(retrieve_param.input_svm_regularizer_c(), "default")
+
+  def test_string_input_svm_regularizer_c_case_1(self):
+    with mock.patch('builtins.input', return_value="NONE"):
+      self.assertEqual(retrieve_param.input_svm_regularizer_c(), "none")
+
+  def test_string_input_svm_regularizer_c_case_2(self):
+    with mock.patch('builtins.input', return_value="DEFAULT"):
+      self.assertEqual(retrieve_param.input_svm_regularizer_c(), "default")
 
 if __name__ == '__main__':
   unittest.main()

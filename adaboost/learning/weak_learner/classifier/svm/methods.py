@@ -57,6 +57,11 @@ def svm_bias(dataset, dataset_label, S, w):
   return dataset_label[S] - np.dot(dataset[S], w)
 
 
+# Obtain max marign of SVM boundary
+def svm_max_margin(w):
+  return 2 / np.linalg.norm(w)
+
+
 # Predict label of corresponding dataset using: label = wx + b
 def svm_classification_prediction(dataset, w, b):
   return np.sign(np.dot(dataset, w) + b[0])

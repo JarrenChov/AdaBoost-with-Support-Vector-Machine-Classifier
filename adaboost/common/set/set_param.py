@@ -189,7 +189,7 @@ def svm_regularizer_c(value):
   else:
     regularizer_c = convert_type.to_float(value)
 
-    if regularizer_c is None or regularizer < 0.0:
+    if regularizer_c is None or regularizer_c < 0.0:
       print("Invalid regularizer parameter size value C. (Invalid Regularizer C Size). Exiting.")
       return None
 

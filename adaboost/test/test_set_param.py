@@ -149,6 +149,16 @@ class TestSetParam(TestCase):
     self.assertEqual(set_param.pca_reduction(*testcase), None)
 
 
+# Input SVM regularizer C
+  def test_boolean_input_svm_regularizer_c_case_0(self):
+    testcase = "False"
+    self.assertEqual(set_param.svm_regularizer_c(testcase), None)
+
+  def test_boolean_input_svm_regularizer_c_case_1(self):
+    testcase = "True"
+    self.assertEqual(set_param.svm_regularizer_c(testcase), None)
+
+
 ################################
 # Number / Float Cases as String
 ################################
@@ -445,6 +455,36 @@ class TestSetParam(TestCase):
     self.assertEqual(set_param.pca_reduction(*testcase), None)
 
 
+# Input SVM regularizer C
+  def test_number_input_svm_regularizer_c_case_0(self):
+    testcase = "0"
+    self.assertEqual(set_param.svm_regularizer_c(testcase), 0.0)
+
+  def test_number_input_svm_regularizer_c_case_1(self):
+    testcase = "0.1"
+    self.assertEqual(set_param.svm_regularizer_c(testcase), 0.1)
+
+  def test_number_input_svm_regularizer_c_case_2(self):
+    testcase = "1"
+    self.assertEqual(set_param.svm_regularizer_c(testcase), 1.0)
+
+  def test_number_input_svm_regularizer_c_case_3(self):
+    testcase = "4"
+    self.assertEqual(set_param.svm_regularizer_c(testcase), 4.0)
+
+  def test_number_input_svm_regularizer_c_case_4(self):
+    testcase = "3.14"
+    self.assertEqual(set_param.svm_regularizer_c(testcase), 3.14)
+
+  def test_number_input_svm_regularizer_c_case_5(self):
+    testcase = "-3.14"
+    self.assertEqual(set_param.svm_regularizer_c(testcase), None)
+
+  def test_number_input_svm_regularizer_c_case_6(self):
+    testcase = "-1"
+    self.assertEqual(set_param.svm_regularizer_c(testcase), None)
+
+
 ######################
 # List Cases as String
 ######################
@@ -504,6 +544,11 @@ class TestSetParam(TestCase):
     testcase = ["SomeTextThatShouldNotExists", "1", "3.14"], ["SomeTextThatShouldNotExists", "1", "3.14"]
     self.assertEqual(set_param.pca_reduction(*testcase), None)
 
+
+# Input SVM regularizer C
+  def test_list_input_svm_regularizer_c_case_0(self):
+    testcase = ["SomeTextThatShouldNotExists", "1", "3.14"]
+    self.assertEqual(set_param.svm_regularizer_c(testcase), None)
 
 ##############
 # String Cases
@@ -653,6 +698,20 @@ class TestSetParam(TestCase):
   def test_string_pca_reduction_case_2(self):
     testcase = "something that will fail", 4
     self.assertEqual(set_param.pca_reduction(*testcase), None)
+
+
+# Input SVM regularizer C
+  def test_string_input_svm_regularizer_c_case_0(self):
+    testcase = "none"
+    self.assertEqual(set_param.svm_regularizer_c(testcase), 0.0)
+
+  def test_string_input_svm_regularizer_c_case_1(self):
+    testcase = "default"
+    self.assertEqual(set_param.svm_regularizer_c(testcase), 1.0)
+
+  def test_string_input_svm_regularizer_c_case_2(self):
+    testcase = "sometest"
+    self.assertEqual(set_param.svm_regularizer_c(testcase), None)
 
 if __name__ == '__main__':
   unittest.main()

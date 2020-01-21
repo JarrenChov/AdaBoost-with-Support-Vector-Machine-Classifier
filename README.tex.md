@@ -158,6 +158,10 @@ Parameters in which will be processed are of the following:
     - A string value *{default / none}* denoting either a default or no reduction to dataset
     - A float value in the range of *{0 <-> 1}* denoting a proportional reduction size to dataset
     - A integer value denoting a subset of a dataset
+- `[*] svm_regularizer_c=<value>` *- specifies the boundary in misclassified points for a non-linearly separable dataset. A greater C values generates a more complex and tailored boundary to the data, whilst a lower C values generates a more generalized boundary*:
+  - `<value>` can accept either of the following:
+   - A string value *{default / none}* denoting either a default boundary, C=1.0 (soft-margin case) or cases in which all points lies on respective sides of a boundary (hard-margin case).
+    - A float value denoting the boundary complexity and mis-classification of points.
 - `[*] adaboost_estimators=<value>` *- specifies the number of AdaBoost generated prediction models (weak learners)*:
   - `<value>` can accept either of the following:
     - A string integer value denoting a number value

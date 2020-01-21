@@ -1,4 +1,4 @@
-from unittest import mock, TestCase
+from unittest import TestCase
 from adaboost.common.check import check_type
 
 class TestCheckType(TestCase):

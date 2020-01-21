@@ -54,12 +54,16 @@ def run(dataset, dataset_label, C):
     print("Exiting.")
     return None
 
-  print("\n>> Initialized SVM Parameter Details\n"
-        # "\t Margin Width (Maximized): %s  (Counts)\n"
+
+  if constants.OUTPUT_DETAIL is True:
+    print("")
+  print("> Initialized SVM Parameter Details\n"
+        "\t Margin Width (Maximized): %s\n"
         "\t Support Vectors: %s  (Counts)\n"
         "\t w (Weights): %d  (Counts)\n"
         "\t b (Bias) Value: %s\n"
-        % (len(alphas[S].flatten()), len(w.flatten()), b[0]))
+        % ('%.4f' % methods.svm_max_margin(w),
+          len(alphas[S].flatten()), len(w.flatten()), b[0]))
 
   prediction = methods.svm_classification_prediction(dataset, w, b)
   accuracy = methods.svm_classification_prediction_accuracy(shaped_label, prediction)

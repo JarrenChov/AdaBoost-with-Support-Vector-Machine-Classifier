@@ -1,4 +1,4 @@
-from unittest import mock, skip, TestCase
+from unittest import skip, TestCase
 from adaboost.common import convert_type
 
 # Notes:

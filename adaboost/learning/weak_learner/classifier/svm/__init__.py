@@ -6,6 +6,7 @@ from .methods import (
   svm_support_vectors,
   svm_weights,
   svm_bias,
+  svm_max_margin,
   svm_classification_prediction,
   svm_classification_prediction_accuracy
 )
