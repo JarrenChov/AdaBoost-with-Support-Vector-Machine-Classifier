@@ -154,10 +154,14 @@ Since the problems will be implemented in [CVXOPT](https://cvxopt.org/), the for
 > <p align="center"><img src="/tex/787e2e08c441000c23ad7855367fb274.svg?invert_in_darkmode&sanitize=true" align=middle width=346.03863359999997pt height=95.62074555pt/></p>
 
 Derived from the primal problem, along with the lagrange multipliers <img src="/tex/3042c543b3b9c0941ca1d3eea87e8519.svg?invert_in_darkmode&sanitize=true" align=middle width=34.11721994999999pt height=24.65753399999998pt/>, the dual problem in the hard margin form is:
-<p align="center"><img src="/tex/a95659ea8f2bd84d1c1f978e8096cde7.svg?invert_in_darkmode&sanitize=true" align=middle width=415.05632189999994pt height=70.4499609pt/></p>
+<p align="center"><img src="/tex/dbed248b71d9048562905b2874bb2af4.svg?invert_in_darkmode&sanitize=true" align=middle width=239.09643945pt height=47.1348339pt/></p>
+
+<p align="center"><img src="/tex/b71befb48b362bf5fbc2e7d12afec0f3.svg?invert_in_darkmode&sanitize=true" align=middle width=175.13798774999998pt height=70.4499609pt/></p>
 
 To convert the problem into an a solveable CVXOPT canonical form of <img src="/tex/6819b215dac1c2e8894599501ea59af8.svg?invert_in_darkmode&sanitize=true" align=middle width=103.75665794999999pt height=27.77565449999998pt/>, let <img src="/tex/32a3b96eadd81450623b8c91678b2672.svg?invert_in_darkmode&sanitize=true" align=middle width=28.323944549999993pt height=22.465723500000017pt/> to represent the matrix form of <img src="/tex/a132b81870a2ceaf0c7a4fe6ca2ab0c4.svg?invert_in_darkmode&sanitize=true" align=middle width=71.93687654999998pt height=27.15900329999998pt/> , the dual form hence becomes of <img src="/tex/de4ee44754783b8901e32565016352bc.svg?invert_in_darkmode&sanitize=true" align=middle width=193.63204244999997pt height=27.77565449999998pt/>. In addition, to obtain the required form, the removal of summations through the use of vectors and inverses of the whole equation and conditions, turn a maximize problem into a minimize problem and required CVXOPT canonical form of:
-<p align="center"><img src="/tex/a1ad50d60c123143607748436c2b0038.svg?invert_in_darkmode&sanitize=true" align=middle width=281.19382665pt height=41.75538345pt/></p>
+<p align="center"><img src="/tex/43c66ddfa6bc43030125ce404f765dfa.svg?invert_in_darkmode&sanitize=true" align=middle width=135.8694975pt height=32.990165999999995pt/></p>
+
+<p align="center"><img src="/tex/c8f8bbb67bf34b7f352b8499c21fc33a.svg?invert_in_darkmode&sanitize=true" align=middle width=145.32432914999998pt height=41.75538345pt/></p>
 
 From this, by directly mapping corresponding values to the canonical form, values obtained are:
 - P is a matrix is dimensions corresponding to <img src="/tex/1e69bd7360709a73ebf7f80e82a2aba7.svg?invert_in_darkmode&sanitize=true" align=middle width=143.70387734999997pt height=37.80850590000001pt/>
@@ -168,7 +172,9 @@ From this, by directly mapping corresponding values to the canonical form, value
 - b is a matrix containing a single <img src="/tex/29632a9bf827ce0200454dd32fc3be82.svg?invert_in_darkmode&sanitize=true" align=middle width=8.219209349999991pt height=21.18721440000001pt/>
 
 Furthermore, using the above form of a hard margin, a soft margin primal problem can be derived where a regulating parameter *<img src="/tex/9b325b9e31e85137d1de765f43c0f8bc.svg?invert_in_darkmode&sanitize=true" align=middle width=12.92464304999999pt height=22.465723500000017pt/>* is added,  such that another parameter of constraint is added to the conditions on <img src="/tex/0aae089ed20772138e327117bd8c6bac.svg?invert_in_darkmode&sanitize=true" align=middle width=13.340053649999989pt height=14.15524440000002pt/>, such that <img src="/tex/9da19e4ee589cbdeef89d96ec58efb5e.svg?invert_in_darkmode&sanitize=true" align=middle width=79.1410653pt height=22.465723500000017pt/>. Such that now the condition <img src="/tex/6ffb5786b0d27de0d37849a048c3f257.svg?invert_in_darkmode&sanitize=true" align=middle width=43.476892799999995pt height=21.18721440000001pt/> becomes <img src="/tex/98a0bffdf730c60555d6adfa97fab72b.svg?invert_in_darkmode&sanitize=true" align=middle width=57.08422499999998pt height=21.18721440000001pt/>. Hence the soft margin dual problem form becomes:
-<p align="center"><img src="/tex/0ecfe76c0427b91ccc3c03994a870e63.svg?invert_in_darkmode&sanitize=true" align=middle width=287.75301555pt height=66.41291745pt/></p>
+<p align="center"><img src="/tex/7a22632d5352a7c61304f31c973fad6b.svg?invert_in_darkmode&sanitize=true" align=middle width=135.8694975pt height=32.990165999999995pt/></p>
+
+<p align="center"><img src="/tex/1e74c7c9e717dcc80cb6b2f11bd7a47b.svg?invert_in_darkmode&sanitize=true" align=middle width=151.88351805pt height=66.41291745pt/></p>
 
 In addition, with such new constraint, the canonical form parameters are modified such that:
 - G is now an negative identity matrix corresponding to the dimensions of <img src="/tex/0aae089ed20772138e327117bd8c6bac.svg?invert_in_darkmode&sanitize=true" align=middle width=13.340053649999989pt height=14.15524440000002pt/> stacked below with another identity <img src="/tex/21fd4e8eecd6bdf1a4d3d6bd1fb8d733.svg?invert_in_darkmode&sanitize=true" align=middle width=8.515988249999989pt height=22.465723500000017pt/> matrix corresponding to the dimensions of <img src="/tex/0aae089ed20772138e327117bd8c6bac.svg?invert_in_darkmode&sanitize=true" align=middle width=13.340053649999989pt height=14.15524440000002pt/>
@@ -189,7 +195,7 @@ On the other hand, we can obtain the value for <img src="/tex/4bdc8d9bcfb35e1c9b
 
 ##### Classifying Points in The Dual Problem
 Since a support vector machine is of a linear separable hyperplane, which is of the form <img src="/tex/0419db7b2713b845f175c8ac5802eb19.svg?invert_in_darkmode&sanitize=true" align=middle width=75.79696739999999pt height=22.831056599999986pt/>, once an hyperplane plane is obtained consisting of <img src="/tex/31dd81634e85e6307a1ad98007005174.svg?invert_in_darkmode&sanitize=true" align=middle width=26.571525749999992pt height=22.831056599999986pt/>, the form of <img src="/tex/927334713b2d326542ab6a748f1da9b2.svg?invert_in_darkmode&sanitize=true" align=middle width=90.76064414999998pt height=22.831056599999986pt/>, which is the formula used to calculate the prediction of a classified point. In addition, the class which the prediction falls under is the idea that if we take the sign of the outcome. Hence, then the prediction becomes:
-<p align="center"><img src="/tex/f9a24e91d6eefbbca2ec18098a6f6979.svg?invert_in_darkmode&sanitize=true" align=middle width=162.98293604999998pt height=88.76802659999998pt/></p>
+<p align="center"><img src="/tex/8c3d7cce9c1daadb13535287734ae37c.svg?invert_in_darkmode&sanitize=true" align=middle width=182.61758625pt height=49.315569599999996pt/></p>
 
 # Usage
 ## Running the Application
