@@ -177,8 +177,13 @@ $$
 
 Derived from the primal problem, along with the lagrange multipliers $\pounds (a)$, the dual problem in the hard margin form is:
 $$
+\begin{aligned}
 \underset{a}{max}\sum_{i}^{m} a^{i} - \frac{1}
-{2}\sum_{i,j}^{m}y^{i}y^{j}a^{i}a^{j}x^{i} \cdot x^{j}\newline
+{2}\sum_{i,j}^{m}y^{i}y^{j}a^{i}a^{j}x^{i} \cdot x^{j}\\
+\end{aligned}
+$$
+
+$$
 \begin{aligned}
   subject \; to \quad & a_{i} \geq 0\\
   & \sum_{i}^{m} a^{i}y^{i} = 0\\
@@ -187,7 +192,12 @@ $$
 
 To convert the problem into an a solveable CVXOPT canonical form of $\frac{1}{2}x^{T}Px \, + \, q^{T}x$, let $H_{i, j}$ to represent the matrix form of $y^{i}y^{j}x^{i} \cdot x^{j}$ , the dual form hence becomes of $\underset{a}{max}\sum_{i}^{m} a^{i} - \frac{1}{2}\sum_{i,j}^{m}a^{T}Ha$. In addition, to obtain the required form, the removal of summations through the use of vectors and inverses of the whole equation and conditions, turn a maximize problem into a minimize problem and required CVXOPT canonical form of:
 $$
-\underset{a}{min} \: \frac{1}{2}a^{T}Ha-1^{T}a\newline
+\begin{aligned}
+\underset{a}{min} \: \frac{1}{2}a^{T}Ha-1^{T}a\\
+\end{aligned}
+$$
+
+$$
   \begin{aligned}
   subject \; to \quad & a_{i} \geq 0\\
   & y^{T}a = 0\\
@@ -204,7 +214,12 @@ From this, by directly mapping corresponding values to the canonical form, value
 
 Furthermore, using the above form of a hard margin, a soft margin primal problem can be derived where a regulating parameter *$C$* is added,  such that another parameter of constraint is added to the conditions on $a_{i}$, such that $0 \leq a_{i} \leq C$. Such that now the condition $0 \leq a_{i}$ becomes $-a_{i} \leq 0$. Hence the soft margin dual problem form becomes:
 $$
-\underset{a}{min} \: \frac{1}{2}a^{T}Ha-1^{T}a\newline
+\begin{aligned}
+\underset{a}{min} \: \frac{1}{2}a^{T}Ha-1^{T}a
+\end{aligned}
+$$
+
+$$
 \begin{aligned}
   subject \; to \quad & -a_{i} \geq 0\\
   & a_{i} \leq C\\
@@ -246,8 +261,8 @@ Since a support vector machine is of a linear separable hyperplane, which is of 
 $$
 \begin{aligned}
   & w \cdot w + b = \begin{cases}
-  & \text{+1} \quad & \geq 0\\
-  & \text{-1} \quad & < 0\\
+  & \text{+1} \quad \geq 0\\
+  & \text{-1} \quad < 0\\
 \end{cases}
 \end{aligned}
 $$
