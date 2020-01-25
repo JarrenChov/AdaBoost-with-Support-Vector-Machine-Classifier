@@ -2,7 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import sys
-from adaboost.common import constants, format_dataset
+from adaboost import methods
+from adaboost.common import constants, classes, classification, format_dataset
 from adaboost.common.check import check_type
 from adaboost.common.get import retrieve_param
 from adaboost.common.set import set_param
@@ -50,6 +51,9 @@ def run():
 
   # AdaBoost data
   adaboost_estimators = None
+  adaboost_dataset_weights = None
+  adaboost_model = []
+  adaboost_early_termination = False
 
   # Initialize global variables
   constants.initialize()
@@ -127,8 +131,8 @@ def run():
     # else use user specified parameter values
     if raw_dataset == 'default':
       if constants.OUTPUT_DETAIL is True:
-        print("--set Dataset-Label-Column: 1")
-        print("--set Dataset-Feature-Column: [2 - 32]")
+        print("  --set Dataset-Label-Column: 1")
+        print("  --set Dataset-Feature-Column: [2 - 32]")
       # convert labels in default WDBC_dataset from string [M, B] to int [1, -1]
       DATASET = format_dataset.dataset_default_label(DATASET_FILEPATH)
       dataset_label_col = 1
@@ -156,8 +160,8 @@ def run():
     dataset_sample_size, dataset_test_size = set_param.dataset_sample_test_size(raw_dataset_sample_size, DATASET.shape[0])
     if check_type.is_int(dataset_sample_size) and check_type.is_int(dataset_test_size):
       if constants.OUTPUT_DETAIL is True:
-        print("--set -init Dataset-Train-Set")
-        print("--set -init Dataset-Test-Set")
+        print("  --set -init Dataset-Train-Set")
+        print("  --set -init Dataset-Test-Set")
       dataset_train_set = DATASET.head(dataset_sample_size)
       dataset_train_label = format_dataset.dataset_extract_columns(dataset_train_set, dataset_label_col)
       dataset_train_set = format_dataset.dataset_extract_features (
@@ -237,12 +241,11 @@ def run():
       print("Exiting. (ERR_MIN_THRESHOLD)")
       sys.exit(-1)
 
-
-    print("--set -update Dataset-Feature-Count: [%d] -> [%s]"
+    print("  --set -update Dataset-Feature-Count: [%d] -> [%s]"
           % (dataset_feature_count, reduction_value[2]))
-    print("--set -update Dataset-Train-Set: %s -> %s"
+    print("  --set -update Dataset-Train-Set: %s -> %s"
           % (dataset_train_set.shape, reduction_value[0].shape))
-    print("--set -update Dataset-Test-Set: %s -> (%s, %s)"
+    print("  --set -update Dataset-Test-Set: %s -> (%s, %s)"
           % (dataset_test_set.shape, dataset_test_set.shape[0], reduction_value[2]))
     feature_order = reduction_value[1]
     dataset_feature_count = reduction_value[2]
@@ -253,15 +256,78 @@ def run():
       print("\n--skipped PCA")
 
 
-# ===============
-# SVM application
-# ===============
+# ====================
+# AdaBoost application
+# ====================
 
-  print("\n=== SVM Initialize Details ===")
-  svm.application.run (
-    dataset_train_set,
-    dataset_train_label,
-    svm_regularizer_c
-  )
+  print("\n=== AdaBoost Runtime Details ===")
+
+  # Initialize distribution weights
+  adaboost_distribution_weights = methods.distribution_weights(dataset_sample_size)
+
+  for estimators in range(adaboost_estimators):
+    print("> AdaBoost Estimator :: [ %d ]" % (estimators + 1))
+    print("--------------------------------")
+
+    # Weak Learner - SVM application
+    hypothesis = classes.model()
+    svm_w, svm_b = svm.application.run (
+                      dataset_train_set,
+                      dataset_train_label,
+                      svm_regularizer_c,
+                      adaboost_distribution_weights
+                    )
+
+    # Set SVM hypothesis parameters
+    hypothesis = methods.set_hypothesis_value(hypothesis, svm_w, svm_b)
+
+    # Predict classification errors in labels (y) with the relationship X -> y
+    hypothesis_prediction, hypothesis_error = methods.hypothesis_classification_error (
+                                                hypothesis,
+                                                dataset_train_set, dataset_train_label,
+                                                adaboost_distribution_weights
+                                              )
+
+    # Calculate significance of hypothesis model as a final strong learner
+    hypothesis.model_weight = methods.hypothesis_significance(hypothesis_error)
+
+    # Update distribution weights
+    adaboost_distribution_weights = methods.update_distribution_weights (
+                                      hypothesis.model_weight, hypothesis_prediction,
+                                      dataset_train_label,
+                                      adaboost_distribution_weights
+                                    )
+
+    print("\n  AdaBoost Model Weight: [%s]\n"
+          "================================"
+          % (hypothesis.model_weight))
+    if estimators != (adaboost_estimators - 1):
+      print("\n")
+
+    if hypothesis.model_weight == 0.0:
+      adaboost_early_termination = True
+      break
+
+    adaboost_model.append(hypothesis)
+
+  if adaboost_early_termination is True:
+    print("Early Termination. Stopping. (EARLY_TERMINATION_DETECTED)")
+
+
+  hypothesis_classification = methods.hypothesis_final(adaboost_model, dataset_train_set, dataset_sample_size)
+
+  hypothesis_classification1 = methods.hypothesis_final(adaboost_model, dataset_test_set, dataset_test_size)
+
+  test = classification.prediction_accuracy(hypothesis_classification, dataset_train_label)
+  test = classification.prediction_accuracy(hypothesis_classification1, dataset_test_label)
+
+
 
   sys.exit(0)
+# # Predict label of corresponding dataset using: label = wx + b
+# def svm_classification_prediction(dataset, w, b):
+#   return np.sign(np.dot(dataset, w) + b[0])
+
+
+# def svm_classification_prediction_accuracy(dataset_labels, prediction):
+#   return np.hstack((prediction == dataset_labels))

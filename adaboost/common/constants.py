@@ -16,6 +16,10 @@ def initialize():
   global NON_ZERO_LAGRANGE_THRESHOLD
   NON_ZERO_LAGRANGE_THRESHOLD = 1e-5
 
+  # Declaration of SVM threshold for non-zero lagrange multiplier
+  global ZERO_SIGNIFICANCE_THRESHOLD
+  ZERO_SIGNIFICANCE_THRESHOLD = 1e-10
+
   # Declaration of detailed output printing
   global OUTPUT_DETAIL
   OUTPUT_DETAIL = False

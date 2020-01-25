@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from adaboost.common import constants
 
@@ -21,3 +22,7 @@ def dataset_default_label(dataset_filepath):
 # Convert a np.ndarray to a pandas dataframe form
 def pandas_dataframe(dataset):
   return pd.DataFrame(dataset)
+
+
+def reshape_vertical_float(dataset):
+  return dataset.values.reshape(-1, 1).astype(float)

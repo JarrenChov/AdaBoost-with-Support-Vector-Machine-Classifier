@@ -24,7 +24,7 @@ def dataset(value):
       return None
 
   if constants.OUTPUT_DETAIL is True:
-    print("--set Dataset-File: %s" % (dataset_filename))
+    print("  --set Dataset-File: %s" % (dataset_filename))
 
   return dataset_path
 
@@ -49,7 +49,7 @@ def dataset_label_col(value, dataset_max_col):
     return None
 
   if constants.OUTPUT_DETAIL is True:
-    print("--set Dataset-Label-Column: %d" % (label_col))
+    print("  --set Dataset-Label-Column: %d" % (label_col))
 
   return label_col
 
@@ -86,7 +86,7 @@ def dataset_feature_cols(value, dataset_max_col):
     return None, None
 
   if constants.OUTPUT_DETAIL is True:
-    print("--set Dataset-Feature-Column: [%s - %s]"
+    print("  --set Dataset-Feature-Column: [%s - %s]"
           % (feature_start_col, feature_end_col))
 
   return feature_start_col, feature_end_col
@@ -114,8 +114,8 @@ def dataset_sample_test_size(value, sample_size_max):
     return None, None
 
   if constants.OUTPUT_DETAIL is True:
-    print("--set Dataset-Sample-Size: %d" % (sample_size))
-    print("--set Dataset-Test-Size: %d" % (test_size))
+    print("  --set Dataset-Sample-Size: %d" % (sample_size))
+    print("  --set Dataset-Test-Size: %d" % (test_size))
 
   return sample_size, test_size
 
@@ -130,12 +130,12 @@ def pca_reduction(value, feature_count_max):
     reduction = "default"
   else:
     if constants.OUTPUT_DETAIL is True:
-      print("--init -type PCA-Reduction: %s" % ("<class 'int'>"))
+      print("  --init -type PCA-Reduction: %s" % ("<class 'int'>"))
     reduction = convert_type.to_int(value)
 
     if reduction is None:
       if constants.OUTPUT_DETAIL is True:
-        print("--init -type PCA-Reduction: %s" % ("<class 'float'>"))
+        print("  --init -type PCA-Reduction: %s" % ("<class 'float'>"))
       reduction = convert_type.to_float(value)
       if reduction is not None:
         if reduction >= 0.0 and reduction <= 1.0:
@@ -169,11 +169,11 @@ def pca_reduction(value, feature_count_max):
   if constants.OUTPUT_DETAIL is True:
     if check_type.is_int(reduction) or check_type.is_float(reduction):
       if check_type.is_float(reduction):
-        print("--set PCA-Reduction: %s [Variance Proportion]" % (reduction))
+        print("  --set PCA-Reduction: %s [Variance Proportion]" % (reduction))
       else:
-        print("--set PCA-Reduction: %d [Reduced Features]" % (reduction))
+        print("  --set PCA-Reduction: %d [Reduced Features]" % (reduction))
     else:
-      print("--set PCA-Reduction: %s" % (reduction))
+      print("  --set PCA-Reduction: %s" % (reduction))
 
   return reduction
 
@@ -200,7 +200,7 @@ def svm_regularizer_c(value):
       set_type = "(None)"
     elif value == "default":
       set_type = "(Default)"
-    print("--set SVM-Regularizer-C: %d  %s" % (regularizer_c, set_type))
+    print("  --set SVM-Regularizer-C: %d  %s" % (regularizer_c, set_type))
 
   return regularizer_c
 
@@ -214,7 +214,7 @@ def adaboost_estimators(value):
     return None
 
   if constants.OUTPUT_DETAIL is True:
-    print("--set AdaBoost-Estimators: %d" % (estimators))
+    print("  --set AdaBoost-Estimators: %d" % (estimators))
 
   return estimators
 
@@ -228,7 +228,7 @@ def out_detail(value):
     return None
 
   if constants.OUTPUT_DETAIL is True:
-    print("--set Out-Detail: %s" % (out_detail_value))
+    print("  --set Out-Detail: %s" % (out_detail_value))
   constants.OUTPUT_DETAIL = out_detail_value
 
   return None

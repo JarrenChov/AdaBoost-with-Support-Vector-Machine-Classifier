@@ -43,6 +43,9 @@ AdaBoost-with-Support-Vector-Machine-Classifier
 │   │   ├── check
 │   │   │   ├── __init__.py
 │   │   │   └── check_type.py
+│   │   ├── classes
+│   │   │   ├── __init__.py
+│   │   │   └── model.py
 │   │   ├── get
 │   │   │   ├── __init__.py
 │   │   │   └── extract_value.py
@@ -51,6 +54,7 @@ AdaBoost-with-Support-Vector-Machine-Classifier
 │   │   │   ├── __init__.py
 │   │   │   └──set_param.py
 │   │   ├── __init__.py
+│   │   ├── classification.py
 │   │   ├── constants.py
 │   │   ├── convert_type.py
 │   │   └── format_dataset.py
@@ -80,6 +84,7 @@ AdaBoost-with-Support-Vector-Machine-Classifier
 │   ├── __init__.py
 │   ├── __main__.py
 │   └── application.py
+│   └── methods.py
 ├── data
 │   ├── raw
 │   │   └── wdbc_data.csv
@@ -95,6 +100,7 @@ Please take note
 - All implementation details regarding AdaBoost are located in `/adaboost (main focus of this project)`
 - All implementation details regarding PCA are located in `/adaboost/learning/dimension_reduction/pca`
 - All implementation details regarding PCA are located in `/adaboost/learning/weak-learner/classifier/svm`
+- All class structure definitions are located in `/adaboost/common/classes`
 - All data with corresponding information are located in `/data`
 - All unit tests are located in `/adaboost/test`
 ## Understanding the Concept of Adaptive Boosting

@@ -1,43 +1,32 @@
 import numpy as np
-from adaboost.common import constants
+from adaboost.common import constants, format_dataset
 from adaboost.learning.weak_learner.classifier.svm import methods
 
-def run(dataset, dataset_label, C):
+def run(dataset, dataset_label, C, distribution_weights):
   dim_samples, dim_features = dataset.shape
-  shaped_label = dataset_label.values.reshape(-1, 1).astype(float)
+  shaped_label = format_dataset.reshape_vertical_float(dataset_label)
 
   # Obtain quadratic programming problem parameters
-  if constants.OUTPUT_DETAIL is True:
-    print("--init SVM-Matrix-Construct")
   P, q, G, h, A, b = methods.dual_problem_quadratic_param (
                         dataset, shaped_label,
                         dim_samples,
-                        C
+                        C,
+                        distribution_weights
                       )
 
   # Solve the quadratic programming problem
-  if constants.OUTPUT_DETAIL is True:
-    print("--init SVM-Quadratic-Programming-Problem-Solver")
   solution = methods.dual_problem_quadratic_solver(P, q, G, h, A, b)
 
   # Calculate (lagrange multiplier) alpha values
-  if constants.OUTPUT_DETAIL is True:
-    print("--init SVM-Lagrange-Multipliers")
   alphas = methods.svm_lagrange_multipliers(solution)
 
   # Find SVM support vectors that have a non-zero lagrange multiplier
-  if constants.OUTPUT_DETAIL is True:
-    print("--init SVM-Support-Vectors")
   S = methods.svm_support_vectors(alphas)
 
-  # Find
-  if constants.OUTPUT_DETAIL is True:
-    print("--init SVM-Weight")
+  # Find weights
   w = methods.svm_weights(dataset, shaped_label, alphas)
 
   # Calculate the bias term
-  if constants.OUTPUT_DETAIL is True:
-    print("--init SVM-Bias")
   b = methods.svm_bias(dataset, shaped_label, S, w)
 
   len_zero_check = (
@@ -54,21 +43,15 @@ def run(dataset, dataset_label, C):
     print("Exiting.")
     return None
 
-
   if constants.OUTPUT_DETAIL is True:
     print("")
-  print("> Initialized SVM Parameter Details\n"
-        "\t Margin Width (Maximized): %s\n"
-        "\t Support Vectors: %s  (Counts)\n"
-        "\t w (Weights): %d  (Counts)\n"
-        "\t b (Bias) Value: %s\n"
+  print("  SVM Parameter Details:\n"
+        "\tMargin Width (Maximized): %s\n"
+        "\tSupport Vectors: %s  (Counts)\n"
+        "\tb (Bias) Value: %s"
         % ('%.4f' % methods.svm_max_margin(w),
-          len(alphas[S].flatten()), len(w.flatten()), b[0]))
+          len(alphas[S].flatten()), b[0]))
+  if constants.OUTPUT_DETAIL is True:
+    print("")
 
-  prediction = methods.svm_classification_prediction(dataset, w, b)
-  accuracy = methods.svm_classification_prediction_accuracy(shaped_label, prediction)
-  # if constants.OUTPUT_DETAIL is True:
-  #   print(">> SVM Classification Details")
-  # print(np.where(accuracy)[0])
-
-
+  return w, b[0]
