@@ -1,5 +1,9 @@
 # AdaBoost with Support Vector Machine Classifier Written in Python
-A supervised learning approach by applying algorithms and techniques of machine learning, to generate a predictive model for diagnosing breast cancer cells as either Benign or Malignant.
+A supervised learning approach by applying algorithms and techniques of machine learning, to generate a predictive model for any applications with a focus on Support Vector Machines predictions.
+
+Although initially the application was created for a predictive model for diagnosing breast cancer cells as either Benign or Malignant, the application was seen to be able to produce models with high accuracy for existing Support Vector Machine based classifications. Hence, along as the dataset format consist of a combined training and testing set, with a single column containing labels <img src="/tex/807acec709f43a1851a968ee98d33c65.svg?invert_in_darkmode&sanitize=true" align=middle width=99.37694744999997pt height=24.65753399999998pt/> and all features preceding each other, there is such use of applying the application onto the problem and a feasible predictive model.
+
+**Live Working Demonstration:** [![Run on Repl.it](https://repl.it/badge/github/JarrenChov/AdaBoost-with-Support-Vector-Machine-Classifier)](https://repl.it/github/JarrenChov/AdaBoost-with-Support-Vector-Machine-Classifier)
 
  The project consists mainly of:
  - Unittest (Inbuilt Python Unit Testing)
@@ -13,6 +17,10 @@ A supervised learning approach by applying algorithms and techniques of machine 
   - [Directory Structure](#directory-structure)
   - [Understanding the Concept of Adaptive Boosting](#understanding-the-concept-of-adaptive-boosting)
     - [AdaBoost Algorithmic Implementation Details](#adaboost-algorithmic-implementation-details)
+      - [Applying Distribution Weight to SVM](#applying-distribution-weight-to-svm)
+      - [Finding Significance Based Off Misclassification Error](#finding-significance-based-off-misclassification-error)
+      - [Obtaining A New Distribution Weight](#obtaining-a-new-distribution-weight)
+      - [Classifying Points Using The Prediction Model](#classifying-points-using-the-prediction-model)
   - [Understanding the Concept of Principal Component Analysis](#understanding-the-concept-of-principal-component-analysis)
     - [PCA Algorithmic Implementation Details](#pca-algorithmic-implementation-details)
   - [Understanding the Concept of Support Vector Machine](#understanding-the-concept-of-support-vector-machine)
@@ -28,6 +36,7 @@ A supervised learning approach by applying algorithms and techniques of machine 
     - [User Defined Inputs](#user-defined-inputs)
     - [Argument Defined Inputs](#argument-defined-inputs)
   - [Running the Application Test Suite](#running-the-application-test-suite)
+- [Results](#results)
 # Disclaimer
 As a note, this project was purely made out of self-interest and dwelling into understanding the mathematical and algorithmic implementation details behind such algorithms and techniques. Where such methods have been applied and used to generate a model through supervised learning. Although using already existing inbuilt machine learning tools of python ([scikit-learn](https://scikit-learn.org/stable/) for those whom are unaware or are new) would be the best way to go and approach these types of projects in a real world scenario, this project was personally a way for myself to develop and harness techniques into creating efficient and simplistic programs in python for the end user, and if such arise, apply the these newly learnt techniques into further developed projects.
 
@@ -42,12 +51,16 @@ AdaBoost-with-Support-Vector-Machine-Classifier
 │   ├── common
 │   │   ├── check
 │   │   │   ├── __init__.py
+│   │   │   ├── check_application.py
 │   │   │   └── check_type.py
 │   │   ├── classes
 │   │   │   ├── __init__.py
+│   │   │   ├── classify.py
 │   │   │   └── model.py
 │   │   ├── get
 │   │   │   ├── __init__.py
+│   │   │   └── application_helper.py
+│   │   │   └── dataset_default.py
 │   │   │   └── extract_value.py
 │   │   │   └── retrieve_param.py
 │   │   ├── set
@@ -60,7 +73,7 @@ AdaBoost-with-Support-Vector-Machine-Classifier
 │   │   └── format_dataset.py
 │   ├── learning
 │   │   ├── weak_learner
-│   │   |   ├── classifier
+│   │   │   ├── classifier
 │   │   │   │   ├── svm
 │   │   │   │   │   ├── __init__.py
 │   │   │   │   │   ├── application.py
@@ -83,29 +96,101 @@ AdaBoost-with-Support-Vector-Machine-Classifier
 │   │   └── test_set_param.py
 │   ├── __init__.py
 │   ├── __main__.py
-│   └── application.py
+│   ├── application.py
 │   └── methods.py
 ├── data
-│   ├── raw
-│   │   └── wdbc_data.csv
-│   └── README.md
-├── tex
+│   ├── unamed
+│   │   ├── processed
+│   │   │   ├── chunhua_shen_6000.csv
+│   │   │   └── chunhua_shen_10000.csv
+│   │   ├── raw
+│   │   │   ├── test_data.csv
+│   │   │   └── train_data.csv
+│   │   ├── /tex
+│   │   ├── README.md
+│   │   └── README.tex.md
+│   └── wdbc
+│       ├── raw
+│       │   └── wdbc_data.csv
+│       ├── /tex
+│       ├── README.md
+│       └── README.tex.md
+├── /tex
 ├── .gitignore
+├── .replit
+├── Makefile
 ├── README.md
-└── README.tex.md
+├── README.tex.md
+└── requirements.txt
 ```
-Please take note
-- README.md is the now the output generated by [TeXify](github.com/agurodriguez/github-texify), after parsing LaTeX expressions into svg's from README.tex.md
-- LaTeX expression svg's are stored in `/tex`
+Please take note:
+
 - All implementation details regarding AdaBoost are located in `/adaboost (main focus of this project)`
 - All implementation details regarding PCA are located in `/adaboost/learning/dimension_reduction/pca`
-- All implementation details regarding PCA are located in `/adaboost/learning/weak-learner/classifier/svm`
+- All implementation details regarding SVM are located in `/adaboost/learning/weak-learner/classifier/svm`
 - All class structure definitions are located in `/adaboost/common/classes`
-- All data with corresponding information are located in `/data`
+- All supplied data with corresponding information are located in `/data`
 - All unit tests are located in `/adaboost/test`
+- All commands are located in `Makefile`
+- All required python dependencies and packages used are located in `requirements.txt`
+- Any README.md is the now the output generated by [TeXify](https://github.com/agurodriguez/github-texify), after parsing LaTeX expressions into svg's from README.tex.md
+- LaTeX expression svg's are stored in `/tex`
+
 ## Understanding the Concept of Adaptive Boosting
+Adaptive Boosting is a way in which existing models can be furthered improved, by applying a series of weak learning algorithms with lower accuracy, with each weak learner learning from the previous learners mistakes, but combined together to obtain a single strong learner.
+
+In addition, AdaBoost helps to solve the problem suffered from the “*curse of dimensionality*” where samples can span very large dimensions, reducing the ability to be able to construct a highly accurate and powerful model that can also easily be run in real time. Although, it has to be kept in mind that Adaptive Boosting is not bullet proof to such curse, where the dataset itself and the algorithm used as the weak-learner can constitutes such problem into over fitting. Such cause, can lead to over confidence in weak learners, which can effect the end accuracy as some learners are prioritized over others.
+
+Nonetheless, the importance of each model relies in retrospect to its corresponding weight value. That is, the weight factors plays an important role and can vastly alter the distribution of the data and the next learning phase of the weak learner. Where incorrectly classified points populate a larger subset of the sample space due to a larger importance placed on correctly classifying such point.
+
+
+By taking such importance into consideration, the weight values vastly fluctuate and the models change under the effects, such that:
+
+- As an incorrectly classified sample keeps being incorrectly classified, the “weight” value will gradually increase, signifying the importance in correctly classifying such hard sample. Whereas the “weight” value will ever so increase towards 1.
+- As an correctly classified sample keeps being correctly classified, the “weight” value will gradually decrease, signifying the unimportance in such sample. Where such sample will decrease towards 0 in the classifying stage, signifying a point which can be ignored.
+
 ### AdaBoost Algorithmic Implementation Details
-placeholder text
+Formulated from *Robert E. Schapire* original implementation [The boosting algorithm AdaBoost](#rob.schapire.net/papers/explaining-adaboost.pdf) on page 2, the AdaBoost algorithm is as described:
+
+> formatting to be added
+
+Given <img src="/tex/a5e7e99dee32034e783f781abc0fb24b.svg?invert_in_darkmode&sanitize=true" align=middle width=143.12435775pt height=24.65753399999998pt/>, Where <img src="/tex/9d2236381ac430744b608c857b1e3b2c.svg?invert_in_darkmode&sanitize=true" align=middle width=155.637174pt height=24.65753399999998pt/>
+Initalize distribution weights <img src="/tex/e449437bd87065d40b530cc9339b6575.svg?invert_in_darkmode&sanitize=true" align=middle width=158.29953809999998pt height=27.77565449999998pt/>
+For <img src="/tex/12a55c0e7bcf9e5c872a7895ab9869f2.svg?invert_in_darkmode&sanitize=true" align=middle width=91.797783pt height=22.465723500000017pt/>
+Fit learner <img src="/tex/05865e37647315e29d69badd080268d2.svg?invert_in_darkmode&sanitize=true" align=middle width=41.632511249999986pt height=24.65753399999998pt/> using distribution weights <img src="/tex/bfc59112689000839ba3702dc1445221.svg?invert_in_darkmode&sanitize=true" align=middle width=18.575388149999988pt height=22.465723500000017pt/> and get hypothesis, such that <img src="/tex/71426c0cdd9e8e4d42761b6670f1aaba.svg?invert_in_darkmode&sanitize=true" align=middle width=139.38336059999997pt height=24.65753399999998pt/>
+Compute <img src="/tex/6f8f6ef94717567ce284faa9121a6595.svg?invert_in_darkmode&sanitize=true" align=middle width=162.41362005pt height=34.8495345pt/>
+Compute <img src="/tex/b063fd39e6e1c4408ba642df3639601e.svg?invert_in_darkmode&sanitize=true" align=middle width=150.22529774999998pt height=37.80850590000001pt/>
+Update distribution weights <img src="/tex/90204b97bca96a8ed47fa13e4972ab94.svg?invert_in_darkmode&sanitize=true" align=middle width=35.219309399999986pt height=22.465723500000017pt/>, such that <img src="/tex/f2ce8d37f391b56a1ec57402accc69ec.svg?invert_in_darkmode&sanitize=true" align=middle width=184.05875565pt height=33.20539859999999pt/>, where the normalization factor <img src="/tex/d170ff997d53968dbe1ca824f3b6916a.svg?invert_in_darkmode&sanitize=true" align=middle width=228.81430275000002pt height=26.438629799999987pt/> lies in a distribution of <img src="/tex/11d1b93da95811425e5f049b83dbf430.svg?invert_in_darkmode&sanitize=true" align=middle width=42.00901979999999pt height=21.18721440000001pt/>.
+Output prediction <img src="/tex/50995c0d17887710ea6207bc63d8df39.svg?invert_in_darkmode&sanitize=true" align=middle width=214.88309699999994pt height=37.80850590000001pt/>
+
+Given such implementation details, to break it down into finer details step-by-step:
+#### Applying Distribution Weight to SVM
+Since each sample in the dataset is weighted to tis corresponding distribution weights <img src="/tex/bfc59112689000839ba3702dc1445221.svg?invert_in_darkmode&sanitize=true" align=middle width=18.575388149999988pt height=22.465723500000017pt/>, such weight needs to be applied onto the Support Vector Machine implementation as described in [SVM Algorithmic Implementation Details](#svm-algorithmic-implementation-details). This is achieved, by slightly modifying the CVXOPT canonical form value `h` to include such weights.
+
+Since h as described below, in the soft margin constitutes with a regulating parameter *<img src="/tex/9b325b9e31e85137d1de765f43c0f8bc.svg?invert_in_darkmode&sanitize=true" align=middle width=12.92464304999999pt height=22.465723500000017pt/>* for each sample, the matrix of regulating parameter constant *<img src="/tex/9b325b9e31e85137d1de765f43c0f8bc.svg?invert_in_darkmode&sanitize=true" align=middle width=12.92464304999999pt height=22.465723500000017pt/>* of dimensions *<img src="/tex/53515155a3acfd1d452d1dd5980165a0.svg?invert_in_darkmode&sanitize=true" align=middle width=141.162747pt height=22.831056599999986pt/>*, can be multiplied with the distribution weights <img src="/tex/bfc59112689000839ba3702dc1445221.svg?invert_in_darkmode&sanitize=true" align=middle width=18.575388149999988pt height=22.465723500000017pt/> corresponding to each sample. That is:
+  > - *h is now an matrix of <img src="/tex/29632a9bf827ce0200454dd32fc3be82.svg?invert_in_darkmode&sanitize=true" align=middle width=8.219209349999991pt height=21.18721440000001pt/>’s corresponding to the dimensions of <img src="/tex/0aae089ed20772138e327117bd8c6bac.svg?invert_in_darkmode&sanitize=true" align=middle width=13.340053649999989pt height=14.15524440000002pt/> stacked horizontally below with another matrix of one multiplied by regulating parameter constant *<img src="/tex/9b325b9e31e85137d1de765f43c0f8bc.svg?invert_in_darkmode&sanitize=true" align=middle width=12.92464304999999pt height=22.465723500000017pt/>* multiplied by a distribution weight <img src="/tex/bfc59112689000839ba3702dc1445221.svg?invert_in_darkmode&sanitize=true" align=middle width=18.575388149999988pt height=22.465723500000017pt/>.*
+
+#### Finding Significance Based Off Misclassification Error
+The misclassification error <img src="/tex/1be0b205f74b46752f6c3239db418f5c.svg?invert_in_darkmode&sanitize=true" align=middle width=162.41362005pt height=34.8495345pt/>, at first glance may seem as a confusing mess of mathematical symbols, but hopefully this such explanation will clear things up. Initially <img src="/tex/7496894d0d4f1d3984b752d0cb66e3a8.svg?invert_in_darkmode&sanitize=true" align=middle width=164.5918758pt height=26.438629799999987pt/> is just saying, *the misclassification error is the sum of all samples corresponding weight multiplied by the actual label multiplied by the prediction where the predicted label does not match the actual label*.
+
+The part <img src="/tex/8153cc72912947bba38234b7c3295c56.svg?invert_in_darkmode&sanitize=true" align=middle width=81.10153589999999pt height=24.65753399999998pt/> *(prediction where the predicted label does not match the actual label)* might still be confusing, however if the mapping <img src="/tex/d9a58b487fa06753e6d0f924870953ba.svg?invert_in_darkmode&sanitize=true" align=middle width=135.19007204999997pt height=24.65753399999998pt/> is taken into account, all it means is:
+- If a predicted label using <img src="/tex/8e12aea9d06260148994f9684ecc3a76.svg?invert_in_darkmode&sanitize=true" align=middle width=45.651676949999995pt height=24.65753399999998pt/> is **equal** to the actual label <img src="/tex/e46f5aa3f3f039ebf21a80fd0cf8fad9.svg?invert_in_darkmode&sanitize=true" align=middle width=12.710331149999991pt height=14.15524440000002pt/>, then the returned value is <img src="/tex/880e3fa8f992a726d9df913ed6910955.svg?invert_in_darkmode&sanitize=true" align=middle width=39.09452909999999pt height=22.831056599999986pt/> which is a <img src="/tex/29632a9bf827ce0200454dd32fc3be82.svg?invert_in_darkmode&sanitize=true" align=middle width=8.219209349999991pt height=21.18721440000001pt/> in integer form.
+- If a predicted label using <img src="/tex/8e12aea9d06260148994f9684ecc3a76.svg?invert_in_darkmode&sanitize=true" align=middle width=45.651676949999995pt height=24.65753399999998pt/> is **not equal** to the actual label <img src="/tex/e46f5aa3f3f039ebf21a80fd0cf8fad9.svg?invert_in_darkmode&sanitize=true" align=middle width=12.710331149999991pt height=14.15524440000002pt/>, then the returned value is <img src="/tex/39f91fc3a8d40698207a280c10017638.svg?invert_in_darkmode&sanitize=true" align=middle width=30.87346349999999pt height=20.221802699999984pt/> which is a <img src="/tex/034d0a6be0424bffe9a6e7ac9236c0f5.svg?invert_in_darkmode&sanitize=true" align=middle width=8.219209349999991pt height=21.18721440000001pt/> in integer form.
+
+Using such information, it becomes apparent that all the formula is actually calculating as a percentage over all summed weights, the **summation of weights** where the prediction has **misclassified** a point.
+
+Based off the misclassification error (<img src="/tex/5e38c7d440020e7fc6642fe0b2dd13dd.svg?invert_in_darkmode&sanitize=true" align=middle width=12.631296149999992pt height=14.15524440000002pt/>), the significance (<img src="/tex/9e2b8d7af10391275b0cbe00525e139f.svg?invert_in_darkmode&sanitize=true" align=middle width=15.48143849999999pt height=14.15524440000002pt/>)  of the current weak learner (hypothesis) with the amount of final say in the strong classier, is determined by the equation <img src="/tex/f72282bcb6464c41848571505b2fd198.svg?invert_in_darkmode&sanitize=true" align=middle width=148.88218784999998pt height=37.80850590000001pt/>. The only aspect which differs from the original implementation by Robert E. Schapire is the introduction of a value <img src="/tex/8217ed3c32a785f0b5aad4055f432ad8.svg?invert_in_darkmode&sanitize=true" align=middle width=10.16555099999999pt height=22.831056599999986pt/>, due to the equation having a limitation when the misclassification error (<img src="/tex/5e38c7d440020e7fc6642fe0b2dd13dd.svg?invert_in_darkmode&sanitize=true" align=middle width=12.631296149999992pt height=14.15524440000002pt/>) results in <img src="/tex/29632a9bf827ce0200454dd32fc3be82.svg?invert_in_darkmode&sanitize=true" align=middle width=8.219209349999991pt height=21.18721440000001pt/> (remember...<img src="/tex/9914f48b211435bdd696e9aeb6e1065b.svg?invert_in_darkmode&sanitize=true" align=middle width=103.23814049999999pt height=24.65753399999998pt/>)! By ensuring such values can never reach 0, the value of <img src="/tex/8217ed3c32a785f0b5aad4055f432ad8.svg?invert_in_darkmode&sanitize=true" align=middle width=10.16555099999999pt height=22.831056599999986pt/> as a threshold is introduced, such that <img src="/tex/2c3f82af26e6e76622c701d730c9fbc2.svg?invert_in_darkmode&sanitize=true" align=middle width=84.48611985pt height=22.831056599999986pt/>.
+
+#### Obtaining A New Distribution Weight
+Although this should be pretty straight forward, to keep the dataset as a uniform distribution of weights and ensuing all weights total <img src="/tex/034d0a6be0424bffe9a6e7ac9236c0f5.svg?invert_in_darkmode&sanitize=true" align=middle width=8.219209349999991pt height=21.18721440000001pt/>, the distribution weight is updated with  <img src="/tex/c434f730623033124f84fa37d41e2164.svg?invert_in_darkmode&sanitize=true" align=middle width=182.5870563pt height=33.20539859999999pt/>. In addition, since Adaptive Boosting plays more importance on correctly classifying misclassified points, points that were correctly classified *(resulting in a negative exponential value)* are updated with a smaller weight of importance in the dataset. Whilst, on the other hand, points that were incorrectly classified *(resulting in a positive exponential value)* are updated with a larger weight of importance in the dataset.
+
+Since the formula itself (the numerator) is not normalized as a uniform distribution, by using the equation <img src="/tex/2a4740f8512c750fd9474ef8ee09e233.svg?invert_in_darkmode&sanitize=true" align=middle width=253.05713894999994pt height=26.438629799999987pt/> each sample weight becomes a percentage of the total combined weights.
+
+#### Classifying Points Using The Prediction Model
+Since Adaptive Boosting uses <img src="/tex/55a049b8f161ae7cfeb0197d75aff967.svg?invert_in_darkmode&sanitize=true" align=middle width=9.86687624999999pt height=14.15524440000002pt/> number weak learners, also known as estimators, the ability to actually generate a singular model can be obtained by combining all weak learners into a singular model. The combination of all weak learners is expressed by <img src="/tex/ccd6e267dbf772a0805711c9da32a32d.svg?invert_in_darkmode&sanitize=true" align=middle width=99.00512324999998pt height=30.685221600000023pt/>, where the corresponding significance (<img src="/tex/c745b9b57c145ec5577b82542b2df546.svg?invert_in_darkmode&sanitize=true" align=middle width=10.57650494999999pt height=14.15524440000002pt/>) of the model is multiplied by the predicted label.
+
+Since the point of interest lies in only knowing the sign of a corresponding label <img src="/tex/36f03ec0af72b674125fc46075f844fa.svg?invert_in_darkmode&sanitize=true" align=middle width=99.37694744999997pt height=24.65753399999998pt/>, the sign magnitude of the obtained prediction is taken such that <img src="/tex/50995c0d17887710ea6207bc63d8df39.svg?invert_in_darkmode&sanitize=true" align=middle width=214.88309699999994pt height=37.80850590000001pt/>.
+
 ## Understanding the Concept of Principal Component Analysis
 The importance and idea behind Principal Component Analysis is to be able to extract such features from a vast range of features that represent/describe information of a given data. In which, the key features that highly describe such data extracted using Principal Component Analysis (PCA), allows for the conversion of such existing features from a possible high dimensional space into a lower linear space of principal components.
 
@@ -131,14 +216,17 @@ By using this *zero-centered data* '<img src="/tex/cbfb1b2a33b28eab8a3e59464768e
 Using the obtained covariance matrix <img src="/tex/be5feb25c1beeb819cf19dbeb233e085.svg?invert_in_darkmode&sanitize=true" align=middle width=19.203221399999993pt height=22.465723500000017pt/>, the the eigen decomposition of eigenvalues and eigenvectors can be obtained. By sorting obtained eigenvalues in descending order, with eigenvalues with largest variance ordered first, selecting the top <img src="/tex/63bb9849783d01d91403bc9a5fea12a2.svg?invert_in_darkmode&sanitize=true" align=middle width=9.075367949999992pt height=22.831056599999986pt/> eigenvalues results in a new matrix <img src="/tex/1e438235ef9ec72fc51ac5025516017c.svg?invert_in_darkmode&sanitize=true" align=middle width=12.60847334999999pt height=22.465723500000017pt/> of shape <img src="/tex/c0e991f2266d76861db938440931060c.svg?invert_in_darkmode&sanitize=true" align=middle width=39.03343619999999pt height=22.831056599999986pt/>. Where <img src="/tex/1e438235ef9ec72fc51ac5025516017c.svg?invert_in_darkmode&sanitize=true" align=middle width=12.60847334999999pt height=22.465723500000017pt/> is a extraction of features to represent the reduced feature dataset.
 
 By applying a projection of <img src="/tex/b18dcb4614c79272c92bad4c8cbade2c.svg?invert_in_darkmode&sanitize=true" align=middle width=81.52029764999999pt height=22.465723500000017pt/> onto the initial dataset, the resulting matrix <img src="/tex/df5a289587a2f0247a5b97c1e8ac58ca.svg?invert_in_darkmode&sanitize=true" align=middle width=12.83677559999999pt height=22.465723500000017pt/> of a <img src="/tex/0aa7f58b7e561001f5301aa03507f552.svg?invert_in_darkmode&sanitize=true" align=middle width=37.72252274999999pt height=22.831056599999986pt/> matrix, where d represents the original sample set rows, represents the new feature space of points relating to the initial data points.
+
 ## Understanding the Concept of Support Vector Machine
 The importance and idea behind a support vector machine (SVM) is predicting the classification label of points contained within a set of data, by creating such a separating hyperplane of up to <img src="/tex/3eeee545b1fbecf1f5a508b7304d7d5c.svg?invert_in_darkmode&sanitize=true" align=middle width=38.17727759999999pt height=21.18721440000001pt/> dimensions, where <img src="/tex/55a049b8f161ae7cfeb0197d75aff967.svg?invert_in_darkmode&sanitize=true" align=middle width=9.86687624999999pt height=14.15524440000002pt/> is the total amount of classification constraints (features). By creating hyperplanes that allows for finite separation of such that points, the end goal is to find such only a single hyperplane which separates the classes with the highest width, with the width having an equidistance between the nearest points of the hyperplane line and the hyperplane itself.
 
 Nonetheless, it is important to not oversee the importance of such points of the hyperplane, as merely just points. In addition, with even a single change in value, the effects can drastically alter the direction and position of an existing hyperplane. These points which are the *"support vectors"* (hence the name), are vital to generating a hyperplane of a support vector machine, where these points act as the fundamental *"pivotal points"* of a hyperplanes boundary.
 
 These boundary however, can be of two categories, where one category draws only a linear line between classes, known as a hard margin case. Whilst another, tires to create a distinction between classes which are of non-linear separations, known as the soft margin case.
+
 ### SVM Hard Margin Case
 The boundary of a hard margin is explicit and constitutes the “hard margin” of a linear support vector machine, also known as *"Hard Margin SVM"*. The general idea is a dataset where “all” points must be linearly separable into its resulting class, that is one side and one side only has a single class of points, whilst another side also only has a single class of points. This case however, allows for no mixed class separation when fitting a support vector, where any point that lies on the incorrect side of a hyperplane may results in failing to classify points by prediction.
+
 ### SVM Soft Margin Case
 On the other hand, the case of points lying on the incorrect side of a hyperplane can be solved by modifying the boundaries to reflect these changes amd allowing such points to be on either side, by applying a regulating parameter *<img src="/tex/9b325b9e31e85137d1de765f43c0f8bc.svg?invert_in_darkmode&sanitize=true" align=middle width=12.92464304999999pt height=22.465723500000017pt/>*. This such case constitutes the “soft margin” of a non-linear support vector machine, also known as *"Soft Margin SVM"*. Consequently, the effect of such parameter "C" can vastly effect the accuracy of classifications and lead to the generalization problem, with whether a more accurate separator is deemed to be a better suite then a generalized separator.
 
@@ -164,7 +252,7 @@ Derived from the primal problem, along with the lagrange multipliers <img src="/
 
 <p align="center"><img src="/tex/b71befb48b362bf5fbc2e7d12afec0f3.svg?invert_in_darkmode&sanitize=true" align=middle width=175.13798774999998pt height=70.4499609pt/></p>
 
-To convert the problem into an a solveable CVXOPT canonical form of <img src="/tex/6819b215dac1c2e8894599501ea59af8.svg?invert_in_darkmode&sanitize=true" align=middle width=103.75665794999999pt height=27.77565449999998pt/>, let <img src="/tex/32a3b96eadd81450623b8c91678b2672.svg?invert_in_darkmode&sanitize=true" align=middle width=28.323944549999993pt height=22.465723500000017pt/> to represent the matrix form of <img src="/tex/a132b81870a2ceaf0c7a4fe6ca2ab0c4.svg?invert_in_darkmode&sanitize=true" align=middle width=71.93687654999998pt height=27.15900329999998pt/> , the dual form hence becomes of <img src="/tex/de4ee44754783b8901e32565016352bc.svg?invert_in_darkmode&sanitize=true" align=middle width=193.63204244999997pt height=27.77565449999998pt/>. In addition, to obtain the required form, the removal of summations through the use of vectors and inverses of the whole equation and conditions, turn a maximize problem into a minimize problem and required CVXOPT canonical form of:
+To convert the problem into an a solvable CVXOPT canonical form of <img src="/tex/6819b215dac1c2e8894599501ea59af8.svg?invert_in_darkmode&sanitize=true" align=middle width=103.75665794999999pt height=27.77565449999998pt/>, let <img src="/tex/32a3b96eadd81450623b8c91678b2672.svg?invert_in_darkmode&sanitize=true" align=middle width=28.323944549999993pt height=22.465723500000017pt/> to represent the matrix form of <img src="/tex/a132b81870a2ceaf0c7a4fe6ca2ab0c4.svg?invert_in_darkmode&sanitize=true" align=middle width=71.93687654999998pt height=27.15900329999998pt/> , the dual form hence becomes of <img src="/tex/de4ee44754783b8901e32565016352bc.svg?invert_in_darkmode&sanitize=true" align=middle width=193.63204244999997pt height=27.77565449999998pt/>. In addition, to obtain the required form, the removal of summations through the use of vectors and inverses of the whole equation and conditions, turn a maximize problem into a minimize problem and required CVXOPT canonical form of:
 <p align="center"><img src="/tex/43c66ddfa6bc43030125ce404f765dfa.svg?invert_in_darkmode&sanitize=true" align=middle width=135.8694975pt height=32.990165999999995pt/></p>
 
 <p align="center"><img src="/tex/c8f8bbb67bf34b7f352b8499c21fc33a.svg?invert_in_darkmode&sanitize=true" align=middle width=145.32432914999998pt height=41.75538345pt/></p>
@@ -204,12 +292,28 @@ Since a support vector machine is of a linear separable hyperplane, which is of 
 <p align="center"><img src="/tex/8c3d7cce9c1daadb13535287734ae37c.svg?invert_in_darkmode&sanitize=true" align=middle width=182.61758625pt height=49.315569599999996pt/></p>
 
 # Usage
+For more detailed information when running the application use the following command:
+```bash
+python -m adaboost help
+```
+If you are using the make file to run the application, use the following command below:
+```bash
+make help
+```
+
 ## Running the Application
 To run the application, by initially starting at the root directory `AdaBoost-with-Support-Vector-Machine-Classifier`, run either of the the following commands to assign parameters in regards to AdaBoost, dataset file, PCA or SVM.
+
 ### User Defined Inputs
 If you wish your enter in such parameters separately, use the command below to go through the process:
 ```bash
 python -m adaboost
+```
+If you are using the make file to run the application, use the following command below:
+>Note the below command only works if no parameters are specified and arguments are obtained via the application itself.
+
+```bash
+make run
 ```
 ### Argument Defined Inputs
 One the other hand, if you wish to assign parameters straight from the command line, parameters can be a continuous set of **parameters written as lowercase, separated by a space between**, as listed below. Use the following command:
@@ -222,7 +326,13 @@ Please note that:
 Parameters in which will be processed are of the following:
 - `[*] dataset_file=<value>` *- specifies a dataset file to be used or use default supplied file*:
   - `<value>` can accept either of the following:
-    - default - Uses the supplied dataset(s) present *[Currently only a single dataset is present]*.
+    - default_# - Uses the supplied datasets present, where # corresponds to the datasets below:
+      ( 1 ) Wisconsin Diagnostic Breast Cancer (WDBC) Dataset
+
+      ( 2 ) Unamed Dataset by Chunhua Shen [Subset sample - 6000 samples]
+
+      ( 3 ) Unamed Dataset by Chunhua Shen [Full sample - 10000 samples]
+
     - Any string path of a file-path leading to a dataset file *Note: [Dataset type is not checked, if using relative path, the directory starts at the root `AdaBoost-with-Support-Vector-Machine-Classifier`, .csv format required]*.
 - `[*] dataset_sample_size=<value>` *- specifies a size to split the dataset into a training and testing set*:
   - `<value>` can accept either of the following:
@@ -234,14 +344,14 @@ Parameters in which will be processed are of the following:
   - `<value>` can accept either of the following:
     - A integer value denoting a column index in a dataset
 - `[#] pca_reduction=<value>` *- specifies the size to reduce an existing dataset features to*:
-  - Unspecified `<value>` will revert to default reduction string `<value=default>`
+  - Unspecified `<value>` will revert to default reduction string `<value=none>`
   - `<value>` can accept either of the following:
-    - A string value *{default / none}* denoting either a default or no reduction to dataset
+    - A string value *{default | none}* denoting either a default or no reduction to dataset
     - A float value in the range of *{0 <-> 1}* denoting a proportional reduction size to dataset
     - A integer value denoting a subset of a dataset
 - `[*] svm_regularizer_c=<value>` *- specifies the boundary in misclassified points for a non-linearly separable dataset. A greater C values generates a more complex and tailored boundary to the data, whilst a lower C values generates a more generalized boundary*:
   - `<value>` can accept either of the following:
-   - A string value *{default / none}* denoting either a default boundary, C=1.0 (soft-margin case) or cases in which all points lies on respective sides of a boundary (hard-margin case).
+   - A string value *{default | none}* denoting either a default boundary, C=1.0 (soft-margin case) or cases in which all points lies on respective sides of a boundary (hard-margin case).
     - A float value denoting the boundary complexity and mis-classification of points.
 - `[*] adaboost_estimators=<value>` *- specifies the number of AdaBoost generated prediction models (weak learners)*:
   - `<value>` can accept either of the following:
@@ -249,10 +359,21 @@ Parameters in which will be processed are of the following:
 - `[#] output_detail=<value>` *- specifies verbose printing*:
   - Unspecified `<value>` will revert to default boolean `<value=false>`
   - `<value>` can accept either of the following:
-    - A string boolean value *{true / false}* denoting a state
+    - A string boolean value *{true | false}* denoting a state
 ## Running the Application Test Suite
 To run the tests to ensure the application is as bug free as possible, a series of tests can be run by initially starting at the root directory `AdaBoost-with-Support-Vector-Machine-Classifier`. To run the series of tests run the command below.
 ```bash
 python -m unittest discover adaboost/test -v -b
 ```
-Although the supplied arguments are optional, the use of *`-v` - verbose printing (Detail output) is to detail what current test is being run, and which part is exactly being tested, whilst *`-b` - buffer stdout and stderr* is used to suppress any application printouts causing clutter in the test suite itself. These itself, improves readability and clarity of tests and debugging if need be.
+If you are using the make file to run the application test suite, use the following command below:
+```bash
+make test
+```
+Although the supplied arguments are optional, the use of `-v` - verbose printing (Detail output) is to detail what current test is being run, and which part is exactly being tested, whilst *`-b` - buffer stdout and stderr* is used to suppress any application printouts causing clutter in the test suite itself. These itself, improves readability and clarity of tests and debugging if need be.
+
+# Results
+Optimal paramters (as of current):
+```bash
+python -m adaboost dataset_file=default dataset_sample_size=300 svm_regularizer_c=4 adaboost_estimators=50
+```
+Further details to be added.
