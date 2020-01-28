@@ -152,16 +152,18 @@ By taking such importance into consideration, the weight values vastly fluctuate
 ### AdaBoost Algorithmic Implementation Details
 Formulated from *Robert E. Schapire* original implementation [The boosting algorithm AdaBoost](#rob.schapire.net/papers/explaining-adaboost.pdf) on page 2, the AdaBoost algorithm is as described:
 
-> formatting to be added
-
 Given <img src="/tex/a5e7e99dee32034e783f781abc0fb24b.svg?invert_in_darkmode&sanitize=true" align=middle width=143.12435775pt height=24.65753399999998pt/>, Where <img src="/tex/9d2236381ac430744b608c857b1e3b2c.svg?invert_in_darkmode&sanitize=true" align=middle width=155.637174pt height=24.65753399999998pt/>
-Initalize distribution weights <img src="/tex/e449437bd87065d40b530cc9339b6575.svg?invert_in_darkmode&sanitize=true" align=middle width=158.29953809999998pt height=27.77565449999998pt/>
-For <img src="/tex/12a55c0e7bcf9e5c872a7895ab9869f2.svg?invert_in_darkmode&sanitize=true" align=middle width=91.797783pt height=22.465723500000017pt/>
-Fit learner <img src="/tex/05865e37647315e29d69badd080268d2.svg?invert_in_darkmode&sanitize=true" align=middle width=41.632511249999986pt height=24.65753399999998pt/> using distribution weights <img src="/tex/bfc59112689000839ba3702dc1445221.svg?invert_in_darkmode&sanitize=true" align=middle width=18.575388149999988pt height=22.465723500000017pt/> and get hypothesis, such that <img src="/tex/71426c0cdd9e8e4d42761b6670f1aaba.svg?invert_in_darkmode&sanitize=true" align=middle width=139.38336059999997pt height=24.65753399999998pt/>
-Compute <img src="/tex/6f8f6ef94717567ce284faa9121a6595.svg?invert_in_darkmode&sanitize=true" align=middle width=162.41362005pt height=34.8495345pt/>
-Compute <img src="/tex/b063fd39e6e1c4408ba642df3639601e.svg?invert_in_darkmode&sanitize=true" align=middle width=150.22529774999998pt height=37.80850590000001pt/>
-Update distribution weights <img src="/tex/90204b97bca96a8ed47fa13e4972ab94.svg?invert_in_darkmode&sanitize=true" align=middle width=35.219309399999986pt height=22.465723500000017pt/>, such that <img src="/tex/f2ce8d37f391b56a1ec57402accc69ec.svg?invert_in_darkmode&sanitize=true" align=middle width=184.05875565pt height=33.20539859999999pt/>, where the normalization factor <img src="/tex/d170ff997d53968dbe1ca824f3b6916a.svg?invert_in_darkmode&sanitize=true" align=middle width=228.81430275000002pt height=26.438629799999987pt/> lies in a distribution of <img src="/tex/11d1b93da95811425e5f049b83dbf430.svg?invert_in_darkmode&sanitize=true" align=middle width=42.00901979999999pt height=21.18721440000001pt/>.
-Output prediction <img src="/tex/50995c0d17887710ea6207bc63d8df39.svg?invert_in_darkmode&sanitize=true" align=middle width=214.88309699999994pt height=37.80850590000001pt/>
+1. Initalize distribution weights <img src="/tex/e449437bd87065d40b530cc9339b6575.svg?invert_in_darkmode&sanitize=true" align=middle width=158.29953809999998pt height=27.77565449999998pt/>
+2. For <img src="/tex/12a55c0e7bcf9e5c872a7895ab9869f2.svg?invert_in_darkmode&sanitize=true" align=middle width=91.797783pt height=22.465723500000017pt/>
+
+    a) Fit learner <img src="/tex/05865e37647315e29d69badd080268d2.svg?invert_in_darkmode&sanitize=true" align=middle width=41.632511249999986pt height=24.65753399999998pt/> using distribution weights <img src="/tex/bfc59112689000839ba3702dc1445221.svg?invert_in_darkmode&sanitize=true" align=middle width=18.575388149999988pt height=22.465723500000017pt/> and get hypothesis, such that <img src="/tex/71426c0cdd9e8e4d42761b6670f1aaba.svg?invert_in_darkmode&sanitize=true" align=middle width=139.38336059999997pt height=24.65753399999998pt/>
+
+    b) Compute <img src="/tex/6f8f6ef94717567ce284faa9121a6595.svg?invert_in_darkmode&sanitize=true" align=middle width=162.41362005pt height=34.8495345pt/>
+
+    c) Compute <img src="/tex/b063fd39e6e1c4408ba642df3639601e.svg?invert_in_darkmode&sanitize=true" align=middle width=150.22529774999998pt height=37.80850590000001pt/>
+
+    d) Update distribution weights <img src="/tex/90204b97bca96a8ed47fa13e4972ab94.svg?invert_in_darkmode&sanitize=true" align=middle width=35.219309399999986pt height=22.465723500000017pt/>, such that <img src="/tex/f2ce8d37f391b56a1ec57402accc69ec.svg?invert_in_darkmode&sanitize=true" align=middle width=184.05875565pt height=33.20539859999999pt/>, where the normalization factor <img src="/tex/d170ff997d53968dbe1ca824f3b6916a.svg?invert_in_darkmode&sanitize=true" align=middle width=228.81430275000002pt height=26.438629799999987pt/> lies in a distribution of <img src="/tex/11d1b93da95811425e5f049b83dbf430.svg?invert_in_darkmode&sanitize=true" align=middle width=42.00901979999999pt height=21.18721440000001pt/>.
+3. Output prediction <img src="/tex/50995c0d17887710ea6207bc63d8df39.svg?invert_in_darkmode&sanitize=true" align=middle width=214.88309699999994pt height=37.80850590000001pt/>
 
 Given such implementation details, to break it down into finer details step-by-step:
 #### Applying Distribution Weight to SVM

@@ -152,16 +152,18 @@ By taking such importance into consideration, the weight values vastly fluctuate
 ### AdaBoost Algorithmic Implementation Details
 Formulated from *Robert E. Schapire* original implementation [The boosting algorithm AdaBoost](#rob.schapire.net/papers/explaining-adaboost.pdf) on page 2, the AdaBoost algorithm is as described:
 
-> formatting to be added
-
 Given $(x_{1}, y_{1}),...,(x_{m}, y_{m})$, Where $x_{i} \in X, y_{i}  \in \left\{ -1, +1 \right\}$
-Initalize distribution weights $D_{t} = \frac{1}{m}, i = 1,2,...,m$
-For $t = 1,2,...,T$
-Fit learner $H_{t}(x)$ using distribution weights $D_{t}$ and get hypothesis, such that $H_{t} : X \rightarrow \left\{ -1, +1 \right\}$
-Compute $\varepsilon_{t} = \frac{\sum_{i=1}^{m}w_{i}I \left( h_{t} \left( x_{i} \neq y_{i} \right) \right)}{\sum_{i=1}^{m}w_{i}}$
-Compute $\alpha_{t} = \frac{1}{2} \ln \left( \frac{1 - \varepsilon_{t}}{\varepsilon_{t}} + \beta \right) $
-Update distribution weights $D_{t+1}$, such that $D_{t+1} \leftarrow  \frac{D_{i} \exp \left( -\alpha_{i}y_{i}h_{t}(x_{i}) \right) }{Z_{t}}$, where the normalization factor $Z_{t} = \sum_{i=1}^{m}D_{i} \exp \left( -\alpha_{i}y_{i}h_{t}(x_{i}) \right)$ lies in a distribution of $0 \leftrightarrow 1$.
-Output prediction $H\left ( x \right ) = sign\left ( \sum_{t=1}^{t}\alpha_{t}h_{t}\left ( x \right ) \right )$
+1. Initalize distribution weights $D_{t} = \frac{1}{m}, i = 1,2,...,m$
+2. For $t = 1,2,...,T$
+
+    a) Fit learner $H_{t}(x)$ using distribution weights $D_{t}$ and get hypothesis, such that $H_{t} : X \rightarrow \left\{ -1, +1 \right\}$
+
+    b) Compute $\varepsilon_{t} = \frac{\sum_{i=1}^{m}w_{i}I \left( h_{t} \left( x_{i} \neq y_{i} \right) \right)}{\sum_{i=1}^{m}w_{i}}$
+
+    c) Compute $\alpha_{t} = \frac{1}{2} \ln \left( \frac{1 - \varepsilon_{t}}{\varepsilon_{t}} + \beta \right) $
+
+    d) Update distribution weights $D_{t+1}$, such that $D_{t+1} \leftarrow  \frac{D_{i} \exp \left( -\alpha_{i}y_{i}h_{t}(x_{i}) \right) }{Z_{t}}$, where the normalization factor $Z_{t} = \sum_{i=1}^{m}D_{i} \exp \left( -\alpha_{i}y_{i}h_{t}(x_{i}) \right)$ lies in a distribution of $0 \leftrightarrow 1$.
+3. Output prediction $H\left ( x \right ) = sign\left ( \sum_{t=1}^{t}\alpha_{t}h_{t}\left ( x \right ) \right )$
 
 Given such implementation details, to break it down into finer details step-by-step:
 #### Applying Distribution Weight to SVM
