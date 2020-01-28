@@ -1,6 +1,10 @@
 from adaboost.common import format_dataset
 from adaboost.learning.dimension_reduction.pca import methods
 
+# ===============
+# PCA application
+# ===============
+
 def run(reduction_size, dataset, sample_size, feature_count):
   reduced_feature_size = None
   reduced_projection_matrix = None
@@ -11,16 +15,16 @@ def run(reduction_size, dataset, sample_size, feature_count):
 
   # Normalize newly centered data
   normalized_features = methods.normalize_dataset (
-    dataset,
-    feature_mean,
-    sample_size
-  )
+                          dataset,
+                          feature_mean,
+                          sample_size
+                        )
 
   # Create a covariance matrix
   covariance_matrix = methods.calculate_covariance (
-    normalized_features,
-    feature_count
-  )
+                        normalized_features,
+                        feature_count
+                      )
 
   # Find eigenvalues, eigenvectors, along with the sorted eigenvalue order
   eigenvalue, eigenvector, sorted_eigen_index = methods.calculate_eigen_decomposition(covariance_matrix)
@@ -41,8 +45,9 @@ def run(reduction_size, dataset, sample_size, feature_count):
 
   # Create a new feature matrix, by projecting eigenvectors onto the dataset features
   projection_matrix = methods.data_projection (
-    dataset,
-    eigenvector,
-    reduced_eigen_index
-  )
-  return [projection_matrix, reduced_eigen_index, reduced_feature_size, ]
+                        dataset,
+                        eigenvector,
+                        reduced_eigen_index
+                      )
+
+  return [ projection_matrix, reduced_eigen_index, reduced_feature_size ]

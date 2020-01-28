@@ -1,11 +1,13 @@
+import math
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import sys
+import time
 from adaboost import methods
 from adaboost.common import constants, classes, classification, format_dataset
-from adaboost.common.check import check_type
-from adaboost.common.get import retrieve_param
+from adaboost.common.check import check_application, check_type
+from adaboost.common.get import application_helper, retrieve_param
 from adaboost.common.set import set_param
 from adaboost.learning.dimension_reduction import pca
 from adaboost.learning.weak_learner.classifier import svm
@@ -29,6 +31,7 @@ def run():
   DATASET = None
   DATASET_FILEPATH = None
   dataset_label_col = None
+  dataset_labels = None
   dataset_feature_count = None
   dataset_feature_start_col = None
   dataset_feature_end_col = None
@@ -54,6 +57,7 @@ def run():
   adaboost_dataset_weights = None
   adaboost_model = []
   adaboost_early_termination = False
+  adaboost_error_termination = False
 
   # Initialize global variables
   constants.initialize()
@@ -69,9 +73,16 @@ def run():
 
   # Extract parameter values from user input or application arguments
   if len(sys.argv) > 1:
+    # Print application help details if required
+    application_help = application_helper.application_help_details()
+    if application_help is True:
+      print("Exiting. (APP_HELP)")
+      exit(0)
+
     print("Retrieving parameters from arguments...")
+
     raw_dataset = retrieve_param.arg_dataset()
-    if raw_dataset != "default":
+    if not check_application.default_datasets(raw_dataset):
       raw_dataset_label_col = retrieve_param.arg_dataset_label_col()
       raw_dataset_feature_cols = retrieve_param.arg_dataset_features_col()
     raw_dataset_sample_size = retrieve_param.arg_dataset_sample_size()
@@ -82,7 +93,7 @@ def run():
   else:
     print("Retrieving parameters from user input...")
     raw_dataset = retrieve_param.input_dataset()
-    if raw_dataset != "default":
+    if not check_application.default_datasets(raw_dataset):
       raw_dataset_label_col = retrieve_param.input_dataset_label_col()
       raw_dataset_feature_cols = retrieve_param.input_dataset_features_col()
     raw_dataset_sample_size = retrieve_param.input_dataset_sample_size()
@@ -92,23 +103,17 @@ def run():
     raw_out_detail = retrieve_param.input_out_detail()
 
   # Ensure all parameters values retrieved have a valid field
-  if raw_dataset != "default":
-    retrieve_col_none_check = (
-      raw_dataset_label_col is None
-      or raw_dataset_feature_cols is None
-    )
-    if retrieve_col_none_check:
+  if not check_application.default_datasets(raw_dataset):
+    if check_application.none_check ([
+      raw_dataset_label_col, raw_dataset_feature_cols
+    ]):
       print("Exiting. (ERR_UNSET_RAW_PARAM_COL)")
       sys.exit(-1)
 
-  retrieve_none_check = (
-    raw_dataset is None
-    or raw_dataset_sample_size is None
-    or raw_pca_reduction is None
-    or raw_adaboost_estimators is None
-    or raw_out_detail is None
-  )
-  if retrieve_none_check:
+  if check_application.none_check ([
+    raw_dataset, raw_dataset_sample_size, raw_pca_reduction,
+    raw_svm_regularizer_c, raw_adaboost_estimators, raw_out_detail
+  ]):
     print("Exiting. (ERR_UNSET_RAW_PARAM)")
     sys.exit(-1)
 
@@ -129,28 +134,34 @@ def run():
   if DATASET_FILEPATH is not None:
     # If default dataset is specified, pre-initialize parameter values,
     # else use user specified parameter values
-    if raw_dataset == 'default':
+    if raw_dataset == 'default_1':
       if constants.OUTPUT_DETAIL is True:
         print("  --set Dataset-Label-Column: 1")
         print("  --set Dataset-Feature-Column: [2 - 32]")
-      # convert labels in default WDBC_dataset from string [M, B] to int [1, -1]
-      DATASET = format_dataset.dataset_default_label(DATASET_FILEPATH)
-      dataset_label_col = 1
-      dataset_feature_start_col = 2
-      dataset_feature_end_col = 32
+
+      dataset_label_col = constants.WDBC_DATASET_LABEL_COL
+      dataset_feature_start_col = constants.WDBC_DATASET_FEATURE_START_COL
+      dataset_feature_end_col = constants.WDBC_DATASET_FEATURE_END_COL
+    elif raw_dataset == 'default_2' or raw_dataset == 'default_3':
+      if constants.OUTPUT_DETAIL is True:
+        print("  --set Dataset-Label-Column: 0")
+        print("  --set Dataset-Feature-Column: [1 - 201]")
+
+      dataset_label_col = constants.SHEN_DATASET_LABEL_COL
+      dataset_feature_start_col = constants.SHEN_DATASET_FEATURE_START_COL
+      dataset_feature_end_col = constants.SHEN_DATASET_FEATURE_END_COL
     else:
       DATASET = pd.read_csv(DATASET_FILEPATH, header=None)
       dataset_label_col = set_param.dataset_label_col(raw_dataset_label_col, DATASET.shape[1])
       dataset_feature_start_col, dataset_feature_end_col = set_param.dataset_feature_cols(raw_dataset_feature_cols, DATASET.shape[1])
+    DATASET, dataset_labels = format_dataset.dataset_default_label(DATASET_FILEPATH, dataset_label_col)
 
     # Application initializer check to ensure all column parameters have been set
-    set_column_none_check = (
-      dataset_label_col is None
-      or dataset_feature_start_col is None
-      or dataset_feature_end_col is None
-    )
-    if set_column_none_check:
-      print("Exiting. (ERR_SET_PARAM_COL)")
+    if check_application.none_check ([
+      DATASET, dataset_label_col,
+      dataset_feature_start_col, dataset_feature_end_col
+    ]):
+      print("Exiting. (ERR_SET_DATASET_PARAM_COL)")
       sys.exit(-1)
 
     # Update count for total number of features
@@ -162,6 +173,7 @@ def run():
       if constants.OUTPUT_DETAIL is True:
         print("  --set -init Dataset-Train-Set")
         print("  --set -init Dataset-Test-Set")
+
       dataset_train_set = DATASET.head(dataset_sample_size)
       dataset_train_label = format_dataset.dataset_extract_columns(dataset_train_set, dataset_label_col)
       dataset_train_set = format_dataset.dataset_extract_features (
@@ -183,16 +195,10 @@ def run():
     adaboost_estimators = set_param.adaboost_estimators(raw_adaboost_estimators)
 
   # Application initializer check to ensure last initializers have been set and are not None
-  set_none_check = (
-    DATASET_FILEPATH is None
-    or dataset_sample_size is None
-    or dataset_test_size is None
-    or dataset_feature_count is None
-    or pca_reduction is None
-    or svm_regularizer_c is None
-    or adaboost_estimators is None
-  )
-  if set_none_check:
+  if check_application.none_check ([
+   DATASET_FILEPATH, dataset_test_size, dataset_feature_count,
+    pca_reduction, svm_regularizer_c, adaboost_estimators
+  ]):
     print("Exiting. (ERR_SET_PARAM)")
     sys.exit(-1)
 
@@ -201,10 +207,10 @@ def run():
 # Print out all initialized parameter values as a confirmation everthing succeeded
 # ================================================================================
 
-  print("\n=== Initialized Parameter Details ===")
+  print("=== Initialized Parameter Details ===")
   print("> Dataset: %s\n"
-          "\t- Malignant Label: %s\n"
-          "\t- Benign Label: %s\n"
+          "\t- [%s] Label: %s\n"
+          "\t- [%s] Label: %s\n"
           "\t- Feature Columns: [%s] - [%s]  (%s Features)\n"
           "\t- Sample Size: %s\n"
           "\t- Test Size: %s\n\n"
@@ -214,12 +220,16 @@ def run():
           "\t- Regularizer C: %s\n\n"
         "> AdaBoost:\n"
           "\t- Estimators: %s"
-        % (DATASET_FILEPATH.rsplit('/', 1)[-1], constants.MALIGNANT_LABEL, constants.BENIGN_LABEL,
+        % (DATASET_FILEPATH.rsplit('/', 1)[-1],
+          dataset_labels[0][0], dataset_labels[0][1],
+          dataset_labels[1][0], dataset_labels[1][1],
           dataset_feature_start_col, dataset_feature_end_col, dataset_feature_count,
           dataset_sample_size, dataset_test_size,
           pca_reduction,
           svm_regularizer_c,
           adaboost_estimators))
+
+  application_start_time = time.time()
 
 
 # ===============
@@ -247,6 +257,7 @@ def run():
           % (dataset_train_set.shape, reduction_value[0].shape))
     print("  --set -update Dataset-Test-Set: %s -> (%s, %s)"
           % (dataset_test_set.shape, dataset_test_set.shape[0], reduction_value[2]))
+
     feature_order = reduction_value[1]
     dataset_feature_count = reduction_value[2]
     dataset_train_set = format_dataset.pandas_dataframe(reduction_value[0])
@@ -267,7 +278,7 @@ def run():
 
   for estimators in range(adaboost_estimators):
     print("> AdaBoost Estimator :: [ %d ]" % (estimators + 1))
-    print("--------------------------------")
+    print("--------------------------------------------------------")
 
     # Weak Learner - SVM application
     hypothesis = classes.model()
@@ -278,6 +289,11 @@ def run():
                       adaboost_distribution_weights
                     )
 
+    # Check for empty SVM values
+    if svm_w is None and svm_b is None:
+      adaboost_error_termination = True
+      break
+
     # Set SVM hypothesis parameters
     hypothesis = methods.set_hypothesis_value(hypothesis, svm_w, svm_b)
 
@@ -287,6 +303,14 @@ def run():
                                                 dataset_train_set, dataset_train_label,
                                                 adaboost_distribution_weights
                                               )
+
+    if math.isclose(hypothesis_error, 0.0, rel_tol = 1e-10):
+      print ("========================================================\n"
+            "\nReached prediction error threshold. (classification error: 0.0).")
+
+      adaboost_early_termination = True
+      adaboost_estimators = estimators
+      break
 
     # Calculate significance of hypothesis model as a final strong learner
     hypothesis.model_weight = methods.hypothesis_significance(hypothesis_error)
@@ -299,35 +323,59 @@ def run():
                                     )
 
     print("\n  AdaBoost Model Weight: [%s]\n"
-          "================================"
+          "========================================================"
           % (hypothesis.model_weight))
     if estimators != (adaboost_estimators - 1):
       print("\n")
 
-    if hypothesis.model_weight == 0.0:
+    # Check weak learners contain only classifying information
+    if math.isclose(hypothesis.model_weight, 0.0, rel_tol = 1e-10):
       adaboost_early_termination = True
+      adaboost_estimators = estimators
       break
 
     adaboost_model.append(hypothesis)
 
+  application_end_time = time.time()
+
+  if adaboost_error_termination is True:
+    print("Exiting. (ERR_SVM_NULL_PARAM)")
+    sys.exit(-1)
+
   if adaboost_early_termination is True:
-    print("Early Termination. Stopping. (EARLY_TERMINATION_DETECTED)")
+    print("Early termination. Stopping. (EARLY_TERMINATION_DETECTED)")
+
+  if adaboost_estimators > 0:
+    # Obtain Prediction and accuracy using obtained AdaboostSVM model
+    train_prediction = methods.hypothesis_final(adaboost_model, dataset_train_set, dataset_sample_size)
+    train_results = classification.prediction_accuracy(train_prediction, dataset_train_label)
+    test_prediction = methods.hypothesis_final(adaboost_model, dataset_test_set, dataset_test_size)
+    test_results = classification.prediction_accuracy(test_prediction, dataset_test_label)
 
 
-  hypothesis_classification = methods.hypothesis_final(adaboost_model, dataset_train_set, dataset_sample_size)
+  # ===================
+  # Application Results
+  # ===================
 
-  hypothesis_classification1 = methods.hypothesis_final(adaboost_model, dataset_test_set, dataset_test_size)
-
-  test = classification.prediction_accuracy(hypothesis_classification, dataset_train_label)
-  test = classification.prediction_accuracy(hypothesis_classification1, dataset_test_label)
-
-
+    print("\n=== Application Result Details ===")
+    print("  Execution Time: %s sec\n\n"
+          "  Model Weak-Learners: %d\n"
+          "\n  - Train Set [%s samples]\n"
+          "\t    Correctly Classified Samples: %s\n"
+          "\t    Misclassified Samples: %s\n"
+          "\t    Accuracy: %f%s\n"
+          "\t    Error: %f%s\n"
+          "\n  - Test Set [%s samples]\n"
+          "\t    Correctly Classified Samples: %s\n"
+          "\t    Misclassified Samples: %s\n"
+          "\t    Accuracy: %f%s\n"
+          "\t    Error: %f%s"
+          % (application_end_time - application_start_time, adaboost_estimators,
+          dataset_sample_size, train_results.classified, train_results.misclassified,
+          train_results.classified_accuracy * 100, '%',  train_results.classified_error * 100, '%',
+          dataset_test_size, test_results.classified, test_results.misclassified,
+          test_results.classified_accuracy * 100, '%', test_results.classified_error * 100, '%'))
+  else:
+    print("No model with weak learners found. Stopping. (NULL_PREDICTION_MODEL)")
 
   sys.exit(0)
-# # Predict label of corresponding dataset using: label = wx + b
-# def svm_classification_prediction(dataset, w, b):
-#   return np.sign(np.dot(dataset, w) + b[0])
-
-
-# def svm_classification_prediction_accuracy(dataset_labels, prediction):
-#   return np.hstack((prediction == dataset_labels))

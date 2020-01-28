@@ -1,5 +1,9 @@
 # AdaBoost with Support Vector Machine Classifier Written in Python
-A supervised learning approach by applying algorithms and techniques of machine learning, to generate a predictive model for diagnosing breast cancer cells as either Benign or Malignant.
+A supervised learning approach by applying algorithms and techniques of machine learning, to generate a predictive model for any applications with a focus on Support Vector Machines predictions.
+
+Although initially the application was created for a predictive model for diagnosing breast cancer cells as either Benign or Malignant, the application was seen to be able to produce models with high accuracy for existing Support Vector Machine based classifications. Hence, along as the dataset format consist of a combined training and testing set, with a single column containing labels $y_{i}  \in \left\{ -1, +1 \right\}$ and all features preceding each other, there is such use of applying the application onto the problem and a feasible predictive model.
+
+**Live Working Demonstration:** [![Run on Repl.it](https://repl.it/badge/github/JarrenChov/AdaBoost-with-Support-Vector-Machine-Classifier)](https://repl.it/github/JarrenChov/AdaBoost-with-Support-Vector-Machine-Classifier)
 
  The project consists mainly of:
  - Unittest (Inbuilt Python Unit Testing)
@@ -13,6 +17,10 @@ A supervised learning approach by applying algorithms and techniques of machine 
   - [Directory Structure](#directory-structure)
   - [Understanding the Concept of Adaptive Boosting](#understanding-the-concept-of-adaptive-boosting)
     - [AdaBoost Algorithmic Implementation Details](#adaboost-algorithmic-implementation-details)
+      - [Applying Distribution Weight to SVM](#applying-distribution-weight-to-svm)
+      - [Finding Significance Based Off Misclassification Error](#finding-significance-based-off-misclassification-error)
+      - [Obtaining A New Distribution Weight](#obtaining-a-new-distribution-weight)
+      - [Classifying Points Using The Prediction Model](#classifying-points-using-the-prediction-model)
   - [Understanding the Concept of Principal Component Analysis](#understanding-the-concept-of-principal-component-analysis)
     - [PCA Algorithmic Implementation Details](#pca-algorithmic-implementation-details)
   - [Understanding the Concept of Support Vector Machine](#understanding-the-concept-of-support-vector-machine)
@@ -28,6 +36,7 @@ A supervised learning approach by applying algorithms and techniques of machine 
     - [User Defined Inputs](#user-defined-inputs)
     - [Argument Defined Inputs](#argument-defined-inputs)
   - [Running the Application Test Suite](#running-the-application-test-suite)
+- [Results](#results)
 # Disclaimer
 As a note, this project was purely made out of self-interest and dwelling into understanding the mathematical and algorithmic implementation details behind such algorithms and techniques. Where such methods have been applied and used to generate a model through supervised learning. Although using already existing inbuilt machine learning tools of python ([scikit-learn](https://scikit-learn.org/stable/) for those whom are unaware or are new) would be the best way to go and approach these types of projects in a real world scenario, this project was personally a way for myself to develop and harness techniques into creating efficient and simplistic programs in python for the end user, and if such arise, apply the these newly learnt techniques into further developed projects.
 
@@ -42,12 +51,16 @@ AdaBoost-with-Support-Vector-Machine-Classifier
 │   ├── common
 │   │   ├── check
 │   │   │   ├── __init__.py
+│   │   │   ├── check_application.py
 │   │   │   └── check_type.py
 │   │   ├── classes
 │   │   │   ├── __init__.py
+│   │   │   ├── classify.py
 │   │   │   └── model.py
 │   │   ├── get
 │   │   │   ├── __init__.py
+│   │   │   └── application_helper.py
+│   │   │   └── dataset_default.py
 │   │   │   └── extract_value.py
 │   │   │   └── retrieve_param.py
 │   │   ├── set
@@ -60,7 +73,7 @@ AdaBoost-with-Support-Vector-Machine-Classifier
 │   │   └── format_dataset.py
 │   ├── learning
 │   │   ├── weak_learner
-│   │   |   ├── classifier
+│   │   │   ├── classifier
 │   │   │   │   ├── svm
 │   │   │   │   │   ├── __init__.py
 │   │   │   │   │   ├── application.py
@@ -83,29 +96,101 @@ AdaBoost-with-Support-Vector-Machine-Classifier
 │   │   └── test_set_param.py
 │   ├── __init__.py
 │   ├── __main__.py
-│   └── application.py
+│   ├── application.py
 │   └── methods.py
 ├── data
-│   ├── raw
-│   │   └── wdbc_data.csv
-│   └── README.md
-├── tex
+│   ├── unamed
+│   │   ├── processed
+│   │   │   ├── chunhua_shen_6000.csv
+│   │   │   └── chunhua_shen_10000.csv
+│   │   ├── raw
+│   │   │   ├── test_data.csv
+│   │   │   └── train_data.csv
+│   │   ├── /tex
+│   │   ├── README.md
+│   │   └── README.tex.md
+│   └── wdbc
+│       ├── raw
+│       │   └── wdbc_data.csv
+│       ├── /tex
+│       ├── README.md
+│       └── README.tex.md
+├── /tex
 ├── .gitignore
+├── .replit
+├── Makefile
 ├── README.md
-└── README.tex.md
+├── README.tex.md
+└── requirements.txt
 ```
-Please take note
-- README.md is the now the output generated by [TeXify](github.com/agurodriguez/github-texify), after parsing LaTeX expressions into svg's from README.tex.md
-- LaTeX expression svg's are stored in `/tex`
+Please take note:
+
 - All implementation details regarding AdaBoost are located in `/adaboost (main focus of this project)`
 - All implementation details regarding PCA are located in `/adaboost/learning/dimension_reduction/pca`
-- All implementation details regarding PCA are located in `/adaboost/learning/weak-learner/classifier/svm`
+- All implementation details regarding SVM are located in `/adaboost/learning/weak-learner/classifier/svm`
 - All class structure definitions are located in `/adaboost/common/classes`
-- All data with corresponding information are located in `/data`
+- All supplied data with corresponding information are located in `/data`
 - All unit tests are located in `/adaboost/test`
+- All commands are located in `Makefile`
+- All required python dependencies and packages used are located in `requirements.txt`
+- Any README.md is the now the output generated by [TeXify](https://github.com/agurodriguez/github-texify), after parsing LaTeX expressions into svg's from README.tex.md
+- LaTeX expression svg's are stored in `/tex`
+
 ## Understanding the Concept of Adaptive Boosting
+Adaptive Boosting is a way in which existing models can be furthered improved, by applying a series of weak learning algorithms with lower accuracy, with each weak learner learning from the previous learners mistakes, but combined together to obtain a single strong learner.
+
+In addition, AdaBoost helps to solve the problem suffered from the “*curse of dimensionality*” where samples can span very large dimensions, reducing the ability to be able to construct a highly accurate and powerful model that can also easily be run in real time. Although, it has to be kept in mind that Adaptive Boosting is not bullet proof to such curse, where the dataset itself and the algorithm used as the weak-learner can constitutes such problem into over fitting. Such cause, can lead to over confidence in weak learners, which can effect the end accuracy as some learners are prioritized over others.
+
+Nonetheless, the importance of each model relies in retrospect to its corresponding weight value. That is, the weight factors plays an important role and can vastly alter the distribution of the data and the next learning phase of the weak learner. Where incorrectly classified points populate a larger subset of the sample space due to a larger importance placed on correctly classifying such point.
+
+
+By taking such importance into consideration, the weight values vastly fluctuate and the models change under the effects, such that:
+
+- As an incorrectly classified sample keeps being incorrectly classified, the “weight” value will gradually increase, signifying the importance in correctly classifying such hard sample. Whereas the “weight” value will ever so increase towards 1.
+- As an correctly classified sample keeps being correctly classified, the “weight” value will gradually decrease, signifying the unimportance in such sample. Where such sample will decrease towards 0 in the classifying stage, signifying a point which can be ignored.
+
 ### AdaBoost Algorithmic Implementation Details
-placeholder text
+Formulated from *Robert E. Schapire* original implementation [The boosting algorithm AdaBoost](#rob.schapire.net/papers/explaining-adaboost.pdf) on page 2, the AdaBoost algorithm is as described:
+
+> formatting to be added
+
+Given $(x_{1}, y_{1}),...,(x_{m}, y_{m})$, Where $x_{i} \in X, y_{i}  \in \left\{ -1, +1 \right\}$
+Initalize distribution weights $D_{t} = \frac{1}{m}, i = 1,2,...,m$
+For $t = 1,2,...,T$
+Fit learner $H_{t}(x)$ using distribution weights $D_{t}$ and get hypothesis, such that $H_{t} : X \rightarrow \left\{ -1, +1 \right\}$
+Compute $\varepsilon_{t} = \frac{\sum_{i=1}^{m}w_{i}I \left( h_{t} \left( x_{i} \neq y_{i} \right) \right)}{\sum_{i=1}^{m}w_{i}}$
+Compute $\alpha_{t} = \frac{1}{2} \ln \left( \frac{1 - \varepsilon_{t}}{\varepsilon_{t}} + \beta \right) $
+Update distribution weights $D_{t+1}$, such that $D_{t+1} \leftarrow  \frac{D_{i} \exp \left( -\alpha_{i}y_{i}h_{t}(x_{i}) \right) }{Z_{t}}$, where the normalization factor $Z_{t} = \sum_{i=1}^{m}D_{i} \exp \left( -\alpha_{i}y_{i}h_{t}(x_{i}) \right)$ lies in a distribution of $0 \leftrightarrow 1$.
+Output prediction $H\left ( x \right ) = sign\left ( \sum_{t=1}^{t}\alpha_{t}h_{t}\left ( x \right ) \right )$
+
+Given such implementation details, to break it down into finer details step-by-step:
+#### Applying Distribution Weight to SVM
+Since each sample in the dataset is weighted to tis corresponding distribution weights $D_{t}$, such weight needs to be applied onto the Support Vector Machine implementation as described in [SVM Algorithmic Implementation Details](#svm-algorithmic-implementation-details). This is achieved, by slightly modifying the CVXOPT canonical form value `h` to include such weights.
+
+Since h as described below, in the soft margin constitutes with a regulating parameter *$C$* for each sample, the matrix of regulating parameter constant *$C$* of dimensions *$datasetsamples \times 1$*, can be multiplied with the distribution weights $D_{t}$ corresponding to each sample. That is:
+  > - *h is now an matrix of $0$’s corresponding to the dimensions of $a_{i}$ stacked horizontally below with another matrix of one multiplied by regulating parameter constant *$C$* multiplied by a distribution weight $D_{t}$.*
+
+#### Finding Significance Based Off Misclassification Error
+The misclassification error $\varepsilon_{t} = \frac{\sum_{i=1}^{m}w_{i}I\left ( h_{t}\left( x_{i} \neq y_{i} \right) \right )}{\sum_{i=1}^{m}w_{i}}$, at first glance may seem as a confusing mess of mathematical symbols, but hopefully this such explanation will clear things up. Initially $\sum_{i=1}^{m}w_{i}I\left ( h_{t}\left( x_{i} \neq y_{i} \right) \right)$ is just saying, *the misclassification error is the sum of all samples corresponding weight multiplied by the actual label multiplied by the prediction where the predicted label does not match the actual label*.
+
+The part $h_{t}\left( x_{i} \neq y_{i} \right)$ *(prediction where the predicted label does not match the actual label)* might still be confusing, however if the mapping $h_{t} : X \rightarrow \left\{ -1, +1 \right\}$ is taken into account, all it means is:
+- If a predicted label using $h_{t}\left( x_{i} \right)$ is **equal** to the actual label $y_{i}$, then the returned value is $false$ which is a $0$ in integer form.
+- If a predicted label using $h_{t}\left( x_{i} \right)$ is **not equal** to the actual label $y_{i}$, then the returned value is $true$ which is a $1$ in integer form.
+
+Using such information, it becomes apparent that all the formula is actually calculating as a percentage over all summed weights, the **summation of weights** where the prediction has **misclassified** a point.
+
+Based off the misclassification error ($\varepsilon_{t}$), the significance ($\alpha_{t}$)  of the current weak learner (hypothesis) with the amount of final say in the strong classier, is determined by the equation $\alpha_{t} = \frac{1}{2}ln\left(  \frac{1 - \varepsilon_{t}}{\varepsilon_{t}} + \beta \right)$. The only aspect which differs from the original implementation by Robert E. Schapire is the introduction of a value $\beta$, due to the equation having a limitation when the misclassification error ($\varepsilon_{t}$) results in $0$ (remember...$log(0) = NaN$)! By ensuring such values can never reach 0, the value of $\beta$ as a threshold is introduced, such that $\beta = 1e-10$.
+
+#### Obtaining A New Distribution Weight
+Although this should be pretty straight forward, to keep the dataset as a uniform distribution of weights and ensuing all weights total $1$, the distribution weight is updated with  $D_{t} \leftarrow \frac{D_{t}\left ( i \right )\exp\left ( -\alpha_{i}y_{i}h_{t}\left ( x_{i} \right ) \right) }{Z_{t}}$. In addition, since Adaptive Boosting plays more importance on correctly classifying misclassified points, points that were correctly classified *(resulting in a negative exponential value)* are updated with a smaller weight of importance in the dataset. Whilst, on the other hand, points that were incorrectly classified *(resulting in a positive exponential value)* are updated with a larger weight of importance in the dataset.
+
+Since the formula itself (the numerator) is not normalized as a uniform distribution, by using the equation $Z_{t} = \sum_{i=1}^{m}D_{t}\left ( i \right )\exp\left ( -\alpha_{i}y_{i}h_{t}\left ( x_{i} \right ) \right)$ each sample weight becomes a percentage of the total combined weights.
+
+#### Classifying Points Using The Prediction Model
+Since Adaptive Boosting uses $n$ number weak learners, also known as estimators, the ability to actually generate a singular model can be obtained by combining all weak learners into a singular model. The combination of all weak learners is expressed by $\sum_{t=1}^{t}\alpha_{t}h_{t}\left ( x \right )$, where the corresponding significance ($\alpha$) of the model is multiplied by the predicted label.
+
+Since the point of interest lies in only knowing the sign of a corresponding label $ y_{i}  \in \left\{ -1, +1 \right\}$, the sign magnitude of the obtained prediction is taken such that $H\left ( x \right ) = sign\left ( \sum_{t=1}^{t}\alpha_{t}h_{t}\left ( x \right ) \right )$.
+
 ## Understanding the Concept of Principal Component Analysis
 The importance and idea behind Principal Component Analysis is to be able to extract such features from a vast range of features that represent/describe information of a given data. In which, the key features that highly describe such data extracted using Principal Component Analysis (PCA), allows for the conversion of such existing features from a possible high dimensional space into a lower linear space of principal components.
 
@@ -131,14 +216,17 @@ $C_{x} = \frac{1}{n-1} X^{T} \cdot X$ , *where $n$ is the number of features*
 Using the obtained covariance matrix $C_{x}$, the the eigen decomposition of eigenvalues and eigenvectors can be obtained. By sorting obtained eigenvalues in descending order, with eigenvalues with largest variance ordered first, selecting the top $k$ eigenvalues results in a new matrix $R$ of shape $n \times k$. Where $R$ is a extraction of features to represent the reduced feature dataset.
 
 By applying a projection of $P = D \times R$ onto the initial dataset, the resulting matrix $P$ of a $d \times k$ matrix, where d represents the original sample set rows, represents the new feature space of points relating to the initial data points.
+
 ## Understanding the Concept of Support Vector Machine
 The importance and idea behind a support vector machine (SVM) is predicting the classification label of points contained within a set of data, by creating such a separating hyperplane of up to $n - 1$ dimensions, where $n$ is the total amount of classification constraints (features). By creating hyperplanes that allows for finite separation of such that points, the end goal is to find such only a single hyperplane which separates the classes with the highest width, with the width having an equidistance between the nearest points of the hyperplane line and the hyperplane itself.
 
 Nonetheless, it is important to not oversee the importance of such points of the hyperplane, as merely just points. In addition, with even a single change in value, the effects can drastically alter the direction and position of an existing hyperplane. These points which are the *"support vectors"* (hence the name), are vital to generating a hyperplane of a support vector machine, where these points act as the fundamental *"pivotal points"* of a hyperplanes boundary.
 
 These boundary however, can be of two categories, where one category draws only a linear line between classes, known as a hard margin case. Whilst another, tires to create a distinction between classes which are of non-linear separations, known as the soft margin case.
+
 ### SVM Hard Margin Case
 The boundary of a hard margin is explicit and constitutes the “hard margin” of a linear support vector machine, also known as *"Hard Margin SVM"*. The general idea is a dataset where “all” points must be linearly separable into its resulting class, that is one side and one side only has a single class of points, whilst another side also only has a single class of points. This case however, allows for no mixed class separation when fitting a support vector, where any point that lies on the incorrect side of a hyperplane may results in failing to classify points by prediction.
+
 ### SVM Soft Margin Case
 On the other hand, the case of points lying on the incorrect side of a hyperplane can be solved by modifying the boundaries to reflect these changes amd allowing such points to be on either side, by applying a regulating parameter *$C$*. This such case constitutes the “soft margin” of a non-linear support vector machine, also known as *"Soft Margin SVM"*. Consequently, the effect of such parameter "C" can vastly effect the accuracy of classifications and lead to the generalization problem, with whether a more accurate separator is deemed to be a better suite then a generalized separator.
 
@@ -196,7 +284,7 @@ $$
 \end{aligned}
 $$
 
-To convert the problem into an a solveable CVXOPT canonical form of $\frac{1}{2}x^{T}Px \, + \, q^{T}x$, let $H_{i, j}$ to represent the matrix form of $y^{i}y^{j}x^{i} \cdot x^{j}$ , the dual form hence becomes of $\underset{a}{max}\sum_{i}^{m} a^{i} - \frac{1}{2}\sum_{i,j}^{m}a^{T}Ha$. In addition, to obtain the required form, the removal of summations through the use of vectors and inverses of the whole equation and conditions, turn a maximize problem into a minimize problem and required CVXOPT canonical form of:
+To convert the problem into an a solvable CVXOPT canonical form of $\frac{1}{2}x^{T}Px \, + \, q^{T}x$, let $H_{i, j}$ to represent the matrix form of $y^{i}y^{j}x^{i} \cdot x^{j}$ , the dual form hence becomes of $\underset{a}{max}\sum_{i}^{m} a^{i} - \frac{1}{2}\sum_{i,j}^{m}a^{T}Ha$. In addition, to obtain the required form, the removal of summations through the use of vectors and inverses of the whole equation and conditions, turn a maximize problem into a minimize problem and required CVXOPT canonical form of:
 $$
 \begin{aligned}
 \underset{a}{min} \: \frac{1}{2}a^{T}Ha-1^{T}a\\
@@ -274,12 +362,28 @@ $$
 $$
 
 # Usage
+For more detailed information when running the application use the following command:
+```bash
+python -m adaboost help
+```
+If you are using the make file to run the application, use the following command below:
+```bash
+make help
+```
+
 ## Running the Application
 To run the application, by initially starting at the root directory `AdaBoost-with-Support-Vector-Machine-Classifier`, run either of the the following commands to assign parameters in regards to AdaBoost, dataset file, PCA or SVM.
+
 ### User Defined Inputs
 If you wish your enter in such parameters separately, use the command below to go through the process:
 ```bash
 python -m adaboost
+```
+If you are using the make file to run the application, use the following command below:
+>Note the below command only works if no parameters are specified and arguments are obtained via the application itself.
+
+```bash
+make run
 ```
 ### Argument Defined Inputs
 One the other hand, if you wish to assign parameters straight from the command line, parameters can be a continuous set of **parameters written as lowercase, separated by a space between**, as listed below. Use the following command:
@@ -292,7 +396,13 @@ Please note that:
 Parameters in which will be processed are of the following:
 - `[*] dataset_file=<value>` *- specifies a dataset file to be used or use default supplied file*:
   - `<value>` can accept either of the following:
-    - default - Uses the supplied dataset(s) present *[Currently only a single dataset is present]*.
+    - default_# - Uses the supplied datasets present, where # corresponds to the datasets below:
+      ( 1 ) Wisconsin Diagnostic Breast Cancer (WDBC) Dataset
+
+      ( 2 ) Unamed Dataset by Chunhua Shen [Subset sample - 6000 samples]
+
+      ( 3 ) Unamed Dataset by Chunhua Shen [Full sample - 10000 samples]
+
     - Any string path of a file-path leading to a dataset file *Note: [Dataset type is not checked, if using relative path, the directory starts at the root `AdaBoost-with-Support-Vector-Machine-Classifier`, .csv format required]*.
 - `[*] dataset_sample_size=<value>` *- specifies a size to split the dataset into a training and testing set*:
   - `<value>` can accept either of the following:
@@ -304,14 +414,14 @@ Parameters in which will be processed are of the following:
   - `<value>` can accept either of the following:
     - A integer value denoting a column index in a dataset
 - `[#] pca_reduction=<value>` *- specifies the size to reduce an existing dataset features to*:
-  - Unspecified `<value>` will revert to default reduction string `<value=default>`
+  - Unspecified `<value>` will revert to default reduction string `<value=none>`
   - `<value>` can accept either of the following:
-    - A string value *{default / none}* denoting either a default or no reduction to dataset
+    - A string value *{default | none}* denoting either a default or no reduction to dataset
     - A float value in the range of *{0 <-> 1}* denoting a proportional reduction size to dataset
     - A integer value denoting a subset of a dataset
 - `[*] svm_regularizer_c=<value>` *- specifies the boundary in misclassified points for a non-linearly separable dataset. A greater C values generates a more complex and tailored boundary to the data, whilst a lower C values generates a more generalized boundary*:
   - `<value>` can accept either of the following:
-   - A string value *{default / none}* denoting either a default boundary, C=1.0 (soft-margin case) or cases in which all points lies on respective sides of a boundary (hard-margin case).
+   - A string value *{default | none}* denoting either a default boundary, C=1.0 (soft-margin case) or cases in which all points lies on respective sides of a boundary (hard-margin case).
     - A float value denoting the boundary complexity and mis-classification of points.
 - `[*] adaboost_estimators=<value>` *- specifies the number of AdaBoost generated prediction models (weak learners)*:
   - `<value>` can accept either of the following:
@@ -319,10 +429,21 @@ Parameters in which will be processed are of the following:
 - `[#] output_detail=<value>` *- specifies verbose printing*:
   - Unspecified `<value>` will revert to default boolean `<value=false>`
   - `<value>` can accept either of the following:
-    - A string boolean value *{true / false}* denoting a state
+    - A string boolean value *{true | false}* denoting a state
 ## Running the Application Test Suite
 To run the tests to ensure the application is as bug free as possible, a series of tests can be run by initially starting at the root directory `AdaBoost-with-Support-Vector-Machine-Classifier`. To run the series of tests run the command below.
 ```bash
 python -m unittest discover adaboost/test -v -b
 ```
-Although the supplied arguments are optional, the use of *`-v` - verbose printing (Detail output) is to detail what current test is being run, and which part is exactly being tested, whilst *`-b` - buffer stdout and stderr* is used to suppress any application printouts causing clutter in the test suite itself. These itself, improves readability and clarity of tests and debugging if need be.
+If you are using the make file to run the application test suite, use the following command below:
+```bash
+make test
+```
+Although the supplied arguments are optional, the use of `-v` - verbose printing (Detail output) is to detail what current test is being run, and which part is exactly being tested, whilst *`-b` - buffer stdout and stderr* is used to suppress any application printouts causing clutter in the test suite itself. These itself, improves readability and clarity of tests and debugging if need be.
+
+# Results
+Optimal paramters (as of current):
+```bash
+python -m adaboost dataset_file=default dataset_sample_size=300 svm_regularizer_c=4 adaboost_estimators=50
+```
+Further details to be added.

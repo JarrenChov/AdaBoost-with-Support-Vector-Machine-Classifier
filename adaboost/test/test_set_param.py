@@ -562,17 +562,37 @@ class TestSetParam(TestCase):
 # Dataset
   def test_string_dataset_case_0(self):
     testcase = "default"
-    self.assertEqual(set_param.dataset(testcase), constants.WDBC_DATASET_PATH)
+    self.assertEqual(set_param.dataset(testcase), None)
 
   def test_string_dataset_case_1(self):
     testcase = "default1"
     self.assertEqual(set_param.dataset(testcase), None)
 
   def test_string_dataset_case_2(self):
-    testcase = "./data/raw/wdbc_data.csv"
-    self.assertEqual(set_param.dataset(testcase), "./data/raw/wdbc_data.csv")
+    testcase = "default_1"
+    self.assertEqual(set_param.dataset(testcase), "./data/wdbc/raw/wdbc_data.csv")
 
   def test_string_dataset_case_3(self):
+    testcase = "default_2"
+    self.assertEqual(set_param.dataset(testcase), "./data/unamed/processed/chunhua_shen_6000.csv")
+
+  def test_string_dataset_case_4(self):
+    testcase = "default_3"
+    self.assertEqual(set_param.dataset(testcase), "./data/unamed/processed/chunhua_shen_10000.csv")
+
+  def test_string_dataset_case_5(self):
+    testcase = "./data/wdbc/raw/wdbc_data.csv"
+    self.assertEqual(set_param.dataset(testcase), "./data/wdbc/raw/wdbc_data.csv")
+
+  def test_string_dataset_case_6(self):
+    testcase = "./data/unamed/processed/chunhua_shen_6000.csv"
+    self.assertEqual(set_param.dataset(testcase), "./data/unamed/processed/chunhua_shen_6000.csv")
+
+  def test_string_dataset_case_7(self):
+    testcase = "./data/unamed/processed/chunhua_shen_10000.csv"
+    self.assertEqual(set_param.dataset(testcase), "./data/unamed/processed/chunhua_shen_10000.csv")
+
+  def test_string_dataset_case_8(self):
     testcase = "./data/fake/wdbc_data.csv"
     self.assertEqual(set_param.dataset(testcase), None)
 

@@ -1,6 +1,11 @@
 import numpy as np
 from adaboost.common import constants, format_dataset
+from adaboost.common.check import check_application
 from adaboost.learning.weak_learner.classifier.svm import methods
+
+# ===============
+# SVM application
+# ===============
 
 def run(dataset, dataset_label, C, distribution_weights):
   dim_samples, dim_features = dataset.shape
@@ -29,19 +34,15 @@ def run(dataset, dataset_label, C, distribution_weights):
   # Calculate the bias term
   b = methods.svm_bias(dataset, shaped_label, S, w)
 
-  len_zero_check = (
-    len(S) == 0
-    or len(b) == 0
-  )
-  if len_zero_check:
+  # Check neither of paramters are empty
+  if check_application.zero_length_check([S, b]):
     if len(S) == 0:
       print("No support vectors found.")
 
     if len(b) == 0:
       print("Non existent bias value 'b'.")
 
-    print("Exiting.")
-    return None
+    return None, None
 
   if constants.OUTPUT_DETAIL is True:
     print("")

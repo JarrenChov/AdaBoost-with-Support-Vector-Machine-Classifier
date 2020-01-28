@@ -18,19 +18,20 @@ def dual_problem_quadratic_param(dataset, dataset_label, dim_samples, C, distrib
   if C == 0.0:
     if constants.OUTPUT_DETAIL is True:
       print("  --set -data=linearly-separable -type=hard-margin")
+
     G = cvxopt.matrix(np.eye(dim_samples) * -1)
     h = cvxopt.matrix(np.zeros(dim_samples))
   else:
-    shaped_distribution_weight = distribution_weights.values.flatten().astype(float)
-
     if constants.OUTPUT_DETAIL is True:
       print("  --set -data=non-linearly-separable -type=soft-margin")
+
+    shaped_distribution_weight = distribution_weights.values.flatten().astype(float)
     G = cvxopt.matrix(np.vstack(((np.eye(dim_samples) * -1), np.eye(dim_samples))))
-    # h = cvxopt.matrix(np.hstack((np.zeros(dim_samples), np.ones(dim_samples) * C)))
     h = cvxopt.matrix(np.hstack((np.zeros(dim_samples), shaped_distribution_weight * (np.ones(dim_samples) * C))))
 
   A = cvxopt.matrix(dataset_label.reshape(1, -1))
   b = cvxopt.matrix(np.zeros(1))
+
   return P, q, G, h, A, b
 
 
@@ -38,9 +39,11 @@ def dual_problem_quadratic_param(dataset, dataset_label, dim_samples, C, distrib
 def dual_problem_quadratic_solver(P, q, G, h, A, b):
   if constants.OUTPUT_DETAIL is True:
     print("  --init SVM-Quadratic-Programming-Problem-Solver")
+
     cvxopt.solvers.options['show_progress'] = True
   else:
     cvxopt.solvers.options['show_progress'] = False
+
   return cvxopt.solvers.qp(P, q, G, h, A, b)
 
 

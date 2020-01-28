@@ -11,25 +11,28 @@ def arg_dataset():
   result = [param for param in sys.argv if 'dataset_file' in param]
 
   if len(result) == 0:
-    print("> Unspecified parameter found (Specify dataset: dataset_file={default | filepath}).")
+    print("> Unspecified parameter found (Specify dataset: dataset_file={default_{dataset_number} | filepath}).")
   elif len(result) >= 2:
     print("> Multiple dataset found. Check only a single dataset is specified.\n"
           "\tFound argument 'dataset' duplicates: %s\n"
           % (result))
   else:
     return extract_value.arg_value('dataset_file', result[0])
+
   return None
 
 
 # Extract filepath value from user specified value
 def input_dataset():
-  supplied_datasets = [1]
+  supplied_datasets = [1, 2, 3]
   accept_param_value = False
   result = None
 
   print("Please enter a dataset file path or select one from below:\n"
         "Existing Dataset files:\n"
-        "\t( 1 ) Wisconsin Diagnostic Breast Cancer (WDBC) Dataset")
+        "\t( 1 ) Wisconsin Diagnostic Breast Cancer (WDBC) Dataset\n"
+        "\t( 2 ) Unamed Dataset by Chunhua Shen [Subset sample - 6000 samples]\n"
+        "\t( 3 ) Unamed Dataset by Chunhua Shen [Full sample - 10000 samples]")
 
   while accept_param_value is False:
     result = input("Dataset Path / Number Selection: ").strip()
@@ -43,14 +46,15 @@ def input_dataset():
         print("Using supplied filepath: '%s'\n" % (result))
         accept_param_value = True
     elif check_type.is_int(param_value):
-      if param_value > 0:
+      if param_value >= 1 and param_value <= 3:
         if param_value in supplied_datasets:
-          result = "default"
+          result = "default" + "_" + convert_type.to_string(param_value)
           accept_param_value = True
         else:
           print("Supplied dataset not found. Try Again.\n")
       else:
         print("Invalid dataset number. Try Again.\n")
+
   return result
 
 
@@ -67,6 +71,7 @@ def arg_dataset_features_col():
   else:
     if '-' in result[0]:
       return extract_value.arg_value('dataset_feature_columns', result[0])
+
   return None
 
 
@@ -99,6 +104,7 @@ def input_dataset_features_col():
     else:
       print("Ensure column numbers are seperated by a '-'. Try Again.\n")
     param_value = convert_type.to_int(result)
+
   return result
 
 
@@ -114,6 +120,7 @@ def arg_dataset_label_col():
           % (result))
   else:
     return extract_value.arg_value('dataset_label_column', result[0])
+
   return None
 
 
@@ -133,6 +140,7 @@ def input_dataset_label_col():
         print("Invalid number. Try Again.\n")
     else:
       print("Check input is of <type 'int'> . Try Again.\n")
+
   return result
 
 
@@ -167,6 +175,7 @@ def input_dataset_sample_size():
         print("Invalid number. Try Again.\n")
     else:
       print("Check input is of <type 'int'> . Try Again.\n")
+
   return result
 
 
@@ -178,7 +187,7 @@ def arg_pca_reduction():
   result = [param for param in sys.argv if 'pca_reduction' in param]
 
   if len(result) == 0:
-    print("> [OPTIONAL] (Specify pca reduction size: pca_reduction={\"default\" | <type 'int'> | <type 'float'>}).")
+    print("> [OPTIONAL] (Specify pca reduction size: pca_reduction={\"default\" | \"none\" | <type 'int'> | <type 'float'>}).")
     print("\tUsing Default: PCA-Reduction=%s\n" % ('none'))
     return "none"
   elif len(result) >= 2:
@@ -187,6 +196,7 @@ def arg_pca_reduction():
           % (result))
   else:
     return extract_value.arg_value('pca_reduction', result[0])
+
   return None
 
 
@@ -211,8 +221,8 @@ def input_pca_reduction():
             print("Invalid number. Try Again.\n")
         else:
           print("Please check input is one of the following:\n"
-          "\"default\" | \"none\" | <type 'int'> | <type 'float'>\n"
-          "Try Again.\n")
+                "\"default\" | \"none\" | <type 'int'> | <type 'float'>\n"
+                "Try Again.\n")
       else:
         param_value = convert_type.to_int(result)
         if check_type.is_int(param_value):
@@ -222,8 +232,9 @@ def input_pca_reduction():
             print("Invalid number. Try Again.\n")
         else:
           print("Please check input is one of the following:\n"
-          "\"default\" | \"none\" | <type 'int'> | <type 'float'>\n"
-          "Try Again.\n")
+                "\"default\" | \"none\" | <type 'int'> | <type 'float'>\n"
+                "Try Again.\n")
+
   return result
 
 
@@ -234,7 +245,7 @@ def arg_svm_regularizer_c():
   result = [param for param in sys.argv if 'svm_regularizer_c' in param]
 
   if len(result) == 0:
-    print("> [OPTIONAL] (Specify pca reduction size: svm_regularizer_c={\"default\" | \"none\" | <type 'float'>}).")
+    print("> [OPTIONAL] (Specify SVM regularizer value: svm_regularizer_c={\"default\" | \"none\" | <type 'float'>}).")
     print("\tUsing Default: SVM-Regularizer-C=%s\n" % ('1.0'))
     return "default"
   elif len(result) >= 2:
@@ -243,6 +254,7 @@ def arg_svm_regularizer_c():
           % (result))
   else:
     return extract_value.arg_value('svm_regularizer_c', result[0])
+
   return None
 
 
@@ -271,8 +283,9 @@ def input_svm_regularizer_c():
           print("Invalid number. Try Again.\n")
       else:
         print("Check input is one of the following:\n"
-        "\"default\" | \"none\" | <type 'float'>\n"
-        "Try Again.\n")
+              "\"default\" | \"none\" | <type 'float'>\n"
+              "Try Again.\n")
+
   return result
 
 
@@ -291,6 +304,7 @@ def arg_adaboost_estimators():
           % (result))
   else:
     return extract_value.arg_value('adaboost_estimators', result[0])
+
   return None
 
 
@@ -310,6 +324,7 @@ def input_adaboost_estimators():
         print("Invalid number. Try Again.\n")
     else:
       print("Check input is of <type 'int'> . Try Again.\n")
+
   return result
 
 
@@ -330,7 +345,9 @@ def arg_out_detail():
     return None
   else:
     return extract_value.arg_value('output_detail', result[0])
+
   return constants.OUTPUT_DETAIL
+
 
 # Extract output detail value from user specified value
 def input_out_detail():
@@ -353,4 +370,5 @@ def input_out_detail():
       "Try Again.\n"
       % (accepted_params))
   print()
+
   return result

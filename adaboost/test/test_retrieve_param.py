@@ -34,19 +34,27 @@ class TestRetrieveParam(TestCase):
 # Input Dataset
   def test_number_input_dataset_case_0(self):
    with mock.patch('builtins.input', side_effect = ["40", "1"]):
-      self.assertEqual(retrieve_param.input_dataset(), "default")
+      self.assertEqual(retrieve_param.input_dataset(), "default_1")
 
   def test_number_input_dataset_case_1(self):
    with mock.patch('builtins.input', side_effect = ["-1", "1"]):
-      self.assertEqual(retrieve_param.input_dataset(), "default")
+      self.assertEqual(retrieve_param.input_dataset(), "default_1")
 
   def test_number_input_dataset_case_2(self):
     with mock.patch('builtins.input', side_effect = ["3.14", "1"]):
-      self.assertEqual(retrieve_param.input_dataset(), "default")
+      self.assertEqual(retrieve_param.input_dataset(), "default_1")
 
   def test_number_input_dataset_case_3(self):
     with mock.patch('builtins.input', return_value="1"):
-      self.assertEqual(retrieve_param.input_dataset(), "default")
+      self.assertEqual(retrieve_param.input_dataset(), "default_1")
+
+  def test_number_input_dataset_case_4(self):
+    with mock.patch('builtins.input', return_value="2"):
+      self.assertEqual(retrieve_param.input_dataset(), "default_2")
+
+  def test_number_input_dataset_case_5(self):
+    with mock.patch('builtins.input', return_value="3"):
+      self.assertEqual(retrieve_param.input_dataset(), "default_3")
 
 
 # Input Dataset Sample Size

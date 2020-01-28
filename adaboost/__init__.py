@@ -3,5 +3,6 @@ from .methods import (
   set_hypothesis_value,
   hypothesis_classification_error,
   hypothesis_significance,
-  update_distribution_weights
+  update_distribution_weights,
+  hypothesis_final
 )

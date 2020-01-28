@@ -38,14 +38,13 @@ def calculate_eigen_decomposition(covariance_matrix):
     print("  --init -order=descending PCA-Eigenvectors")
 
   eigenvalue, eigenvector = np.linalg.eig(covariance_matrix)
-  # print(eigenvalue.real)
   sorted_eigen_index = np.argsort(-eigenvalue.real)
   return eigenvalue, eigenvector, sorted_eigen_index
 
 
-# Reduce feature dataset dimensiosn based on either:
-#   - A cumlative variance percentage of the total dataset up to a user specified variance threshold
-#   - Default space by taking first x ammount of features until a variance of 1 is reached
+# Reduce feature dataset dimensions based on either:
+#   - A cumulative variance percentage of the total dataset up to a user specified variance threshold
+#   - Default space by taking first x amount of features until a variance of 1 is reached
 #   - A user specified feature range
 def reduce_dimensionality(reduction_size, sorted_eigen_index, eigenvalue):
   if constants.OUTPUT_DETAIL is True:
@@ -56,23 +55,24 @@ def reduce_dimensionality(reduction_size, sorted_eigen_index, eigenvalue):
   reduced_eigen_index = None
 
   if check_type.is_float(reduction_size) or check_type.is_str(reduction_size):
-    cumlative_variance = np.cumsum(eigenvalue[sorted_eigen_index].real / np.sum(eigenvalue.real))
-    # print(sorted_eigen_index.real)
+    cumulative_variance = np.cumsum(eigenvalue[sorted_eigen_index].real / np.sum(eigenvalue.real))
 
     # Reduce dimension based on a cumlative variance totaling a variance threshold
     if check_type.is_float(reduction_size):
-      feature_range = (bisect(cumlative_variance, reduction_size)) + 1
+      feature_range = (bisect(cumulative_variance, reduction_size)) + 1
       if feature_range <= 1:
         print("Feature minimum threshold unreached. (min=2)\n"
               "Please try again within reduction range [%s <-> 1]."
-              % (cumlative_variance[0]))
+              % (cumulative_variance[0]))
         return None
       else:
         reduced_feature_size = feature_range
+
     # Reduce dimensions based on the first instance of variance totaling 1.00000000
     elif reduction_size == "default":
-      cumlative_variance = ['%.8f' % feature for feature in cumlative_variance]
-      reduced_feature_size = cumlative_variance.index('1.00000000')
+      cumulative_variance = ['%.8f' % feature for feature in cumulative_variance]
+      reduced_feature_size = cumulative_variance.index('1.00000000')
+      
   # Reduce dimensions based on a specified feature range
   elif check_type.is_int(reduction_size):
     reduced_feature_size = reduction_size

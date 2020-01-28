@@ -15,6 +15,7 @@ def to_bool(data):
     or data is None
     or data == ''
   )
+
   if type_check:
     if data is None or data == '':
       if constants.OUTPUT_DETAIL is True:
@@ -32,6 +33,7 @@ def to_bool(data):
   else:
     if constants.OUTPUT_DETAIL is True:
       print("Failed to convert '%s' to boolean" % (data))
+
   return None
 
 
@@ -46,6 +48,7 @@ def to_float(data):
     or data is None
     or data == ''
   )
+
   if type_check:
     if data is None or data == '':
       if constants.OUTPUT_DETAIL is True:
@@ -64,6 +67,7 @@ def to_float(data):
   except ValueError:
     if constants.OUTPUT_DETAIL is True:
       print("Failed to convert '%s' to Float" % (data))
+
   return float_value
 
 
@@ -79,6 +83,7 @@ def to_int(data):
     or data is None
     or data == ''
   )
+
   if type_check:
     if data is None or data == '':
       if constants.OUTPUT_DETAIL is True:
@@ -97,6 +102,7 @@ def to_int(data):
   except ValueError:
     if constants.OUTPUT_DETAIL is True:
       print("Failed to convert '%s' to Integer" % (data))
+
   return int_value
 
 
@@ -108,6 +114,7 @@ def to_string(data):
     or data is None
     or data == ''
   )
+
   if type_check:
     if data is None or data == '':
       if constants.OUTPUT_DETAIL is True:
@@ -120,4 +127,5 @@ def to_string(data):
   # Check type is already a string
   if check_type.is_str(data):
     return data
+
   return str(data)

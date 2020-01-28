@@ -1,6 +1,6 @@
 import os.path
 from adaboost.common import constants, convert_type
-from adaboost.common.check import check_type
+from adaboost.common.check import check_application, check_type
 
 # Before assinging, check dataset is exists as a file, or
 # convert a supplied dataset to its default file path
@@ -8,19 +8,25 @@ def dataset(value):
   dataset_path = None
   dataset_filename = None
 
-  if value == 'default':
-    dataset_path = constants.WDBC_DATASET_PATH
-    dataset_filename = constants.WDBC_DATASET_PATH.rsplit('/', 1)[-1]
+  if check_application.default_datasets(value):
+    if value == 'default_1':
+      dataset_path = constants.WDBC_DATASET_PATH
+    elif value == 'default_2':
+      dataset_path = constants.SHEN_DATASET_SUBSET_PATH
+    elif value == 'default_3':
+      dataset_path = constants.SHEN_DATASET_FULL_PATH
+
+    dataset_filename = dataset_path.rsplit('/', 1)[-1]
   else:
     if not check_type.is_str(value):
-      print("Invalid dataset file (File Not Found). Exiting.")
+      print("Invalid dataset file (File Not Found).")
       return None
 
     if os.path.isfile(value):
       dataset_path = value
       dataset_filename = value.rsplit('/', 1)[-1]
     else:
-      print("Invalid dataset file (File Not Found). Exiting.")
+      print("Invalid dataset file (File Not Found).")
       return None
 
   if constants.OUTPUT_DETAIL is True:
@@ -41,11 +47,11 @@ def dataset_label_col(value, dataset_max_col):
     or dataset_max_col <= 0
   )
   if value_check:
-    print("Invalid dataset label column index. Exiting.")
+    print("Invalid dataset label column index.")
     return None
 
   if label_col > dataset_max_col:
-    print("Invalid dataset label column index (Label Columns Exceeds Dimension). Exiting.")
+    print("Invalid dataset label column index (Label Columns Exceeds Dimension).")
     return None
 
   if constants.OUTPUT_DETAIL is True:
@@ -57,7 +63,7 @@ def dataset_label_col(value, dataset_max_col):
 # Before assinging, check starting and ending feature range are valid columns and values
 def dataset_feature_cols(value, dataset_max_col):
   if '-' not in value:
-    print("Invalid dataset feature columns (Null Feature Range). Exiting.")
+    print("Invalid dataset feature columns (Null Feature Range).")
     return None, None
 
   seperator = value.replace(" ", '').split("-", 1)
@@ -78,11 +84,12 @@ def dataset_feature_cols(value, dataset_max_col):
      or feature_start_col >= feature_end_col
   )
   if value_check:
-    print("Invalid dataset feature columns. Exiting.")
+    print("Invalid dataset feature columns.")
     return None, None
 
   if feature_start_col >= dataset_max_col or feature_end_col > dataset_max_col:
-    print("Invalid dataset feature column index (Feature Columns Exceeds Dimension). Exiting.")
+    print("Invalid dataset feature column index (Feature Columns Exceeds Dimension).\n"
+          "Hint: Dataset feature column index start at 0")
     return None, None
 
   if constants.OUTPUT_DETAIL is True:
@@ -105,12 +112,12 @@ def dataset_sample_test_size(value, sample_size_max):
     or sample_size_max <= 0
   )
   if value_check:
-    print("Invalid dataset sample size (Empty Sample Size). Exiting.")
+    print("Invalid dataset sample size (Empty Sample Size).")
     return None, None
 
   test_size = sample_size_max - sample_size
   if test_size <= 0:
-    print("Invalid dataset sample size (Sample Size Exceeds Dataset). Exiting.")
+    print("Invalid dataset sample size (Sample Size Exceeds Dataset).")
     return None, None
 
   if constants.OUTPUT_DETAIL is True:
@@ -145,15 +152,15 @@ def pca_reduction(value, feature_count_max):
           if reduction == 1.0:
             reduction = "default"
         else:
-          print("Invalid PCA reduction size (Reduction Size Exceeds Range [0 - 1]). Exiting.")
+          print("Invalid PCA reduction size (Reduction Size Exceeds Range [0 - 1]).")
           return None
       else:
-        print("Invalid PCA reduction size (Invalid Reduction Size). Exiting.")
+        print("Invalid PCA reduction size (Invalid Reduction Size).")
         return None
     else:
       feature_count_max = convert_type.to_int(feature_count_max)
       if feature_count_max is None:
-        print("Invalid PCA feature count (Invalid Feature Count). Exiting.")
+        print("Invalid PCA feature count (Invalid Feature Count).")
         return None
 
       if reduction >= 0 and reduction <= feature_count_max:
@@ -163,7 +170,7 @@ def pca_reduction(value, feature_count_max):
         if reduction == 1 or reduction == feature_count_max:
           reduction = "default"
       else:
-        print("Invalid PCA reduction size (Reduction Size Exceeds Count [0 - %d]. Exiting." % (feature_count_max))
+        print("Invalid PCA reduction size (Reduction Size Exceeds Count [0 - %d]." % (feature_count_max))
         return None
 
   if constants.OUTPUT_DETAIL is True:
@@ -190,7 +197,7 @@ def svm_regularizer_c(value):
     regularizer_c = convert_type.to_float(value)
 
     if regularizer_c is None or regularizer_c < 0.0:
-      print("Invalid regularizer parameter size value C. (Invalid Regularizer C Size). Exiting.")
+      print("Invalid regularizer parameter value C. (Invalid Regularizer C Value).")
       return None
 
   if constants.OUTPUT_DETAIL is True:
@@ -210,7 +217,7 @@ def adaboost_estimators(value):
   estimators = convert_type.to_int(value)
 
   if estimators is None or estimators <= 0:
-    print("Invalid estimator. Exiting.")
+    print("Invalid estimator.")
     return None
 
   if constants.OUTPUT_DETAIL is True:
