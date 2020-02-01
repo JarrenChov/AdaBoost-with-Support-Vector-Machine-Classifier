@@ -164,14 +164,7 @@ By taking such importance into consideration, the weight values vastly fluctuate
 ### AdaBoost Algorithmic Implementation Details
 Formulated from *Robert E. Schapire* original implementation [The boosting algorithm AdaBoost](#rob.schapire.net/papers/explaining-adaboost.pdf) on page 2, the AdaBoost algorithm is as described:
 
-Given $(x_{1}, y_{1}),...,(x_{m}, y_{m})$, Where $x_{i} \in X, y_{i}  \in \left\{ -1, +1 \right\}$
-1. Initalize distribution weights $D_{t} = \frac{1}{m}, i = 1,2,...,m$
-2. For $t = 1,2,...,T$
-  a Fit learner $H_{t}(x)$ using distribution weights $D_{t}$ and get hypothesis, such that $H_{t} : X \rightarrow \left\{ -1, +1 \right\}$
-  b Compute $\varepsilon_{t} = \frac{\sum_{i=1}^{m}w_{i}I \left( h_{t} \left( x_{i} \neq y_{i} \right) \right)}{\sum_{i=1}^{m}w_{i}}$
-  c Compute $\alpha_{t} = \frac{1}{2} \ln \left( \frac{1 - \varepsilon_{t}}{\varepsilon_{t}} + \beta \right) $
-  d Update distribution weights $D_{t+1}$, such that $D_{t+1} \leftarrow  \frac{D_{i} \exp \left( -\alpha_{i}y_{i}h_{t}(x_{i}) \right) }{Z_{t}}$, where the normalization factor $Z_{t} = \sum_{i=1}^{m}D_{i} \exp \left( -\alpha_{i}y_{i}h_{t}(x_{i}) \right)$ lies in a distribution of $0 \leftrightarrow 1$.
-3. Output prediction $H\left ( x \right ) = sign\left ( \sum_{t=1}^{t}\alpha_{t}h_{t}\left ( x \right ) \right )$
+<img src="/figs/adaboost/step_details.png" width=850 height=400/>
 
 Given such implementation details, to break it down into finer details step-by-step:
 #### Applying Distribution Weight to SVM
@@ -480,9 +473,9 @@ python -m adaboost dataset_file=default_1 dataset_sample_size=250 svm_regularize
 This obtained model, achieved a 5% error rate on average between both sets, with both sets having the smallest deviation margin difference in error, whilst still obtaining a high classification rate in the mid $90 \%$, as shown below in Figure 1.
 
 **Error Loss & Accuracy:**
-| <img src="/figs/plot/default_1_ss250_c10_ae8.png" width=750 height=450/>  |
-| :--: |
-| *Figure 1: Graph showing error loss and model accuracy against number of iterators, using specified model parameters above.*  |
+<img src="/figs/plot/default_1_ss250_c10_ae8.png" width=750 height=450/>
+
+*Figure 1: Graph showing error loss and model accuracy against number of iterators, using specified model parameters above.*
 
 As a note, Since the dataset is rather small in terms of features, the amount of used weak-learners was also rather significantly smaller than initially thought. In addition, this may have also been effected as a Support Vector Machine classifier is rather an already *strong* classifier itself, with tendency to have higher then accuracy starting in the $80 \%$. Whilst, AdaBoost tends works better in generating predictive models with weaker classifiers that obtain $50 \% - 60 \%$ accuracy.
 Although, generally an AdaBoost SVM model is trained using a RBF Kernel-SVM, this may be implemented in a future stage to see if the model can achieve a more stable and preforming model for future unseen cases.

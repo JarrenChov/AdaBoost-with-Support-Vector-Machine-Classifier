@@ -164,14 +164,7 @@ By taking such importance into consideration, the weight values vastly fluctuate
 ### AdaBoost Algorithmic Implementation Details
 Formulated from *Robert E. Schapire* original implementation [The boosting algorithm AdaBoost](#rob.schapire.net/papers/explaining-adaboost.pdf) on page 2, the AdaBoost algorithm is as described:
 
-Given <img src="/tex/a5e7e99dee32034e783f781abc0fb24b.svg?invert_in_darkmode&sanitize=true" align=middle width=143.12435775pt height=24.65753399999998pt/>, Where <img src="/tex/9d2236381ac430744b608c857b1e3b2c.svg?invert_in_darkmode&sanitize=true" align=middle width=155.637174pt height=24.65753399999998pt/>
-1. Initalize distribution weights <img src="/tex/e449437bd87065d40b530cc9339b6575.svg?invert_in_darkmode&sanitize=true" align=middle width=158.29953809999998pt height=27.77565449999998pt/>
-2. For <img src="/tex/12a55c0e7bcf9e5c872a7895ab9869f2.svg?invert_in_darkmode&sanitize=true" align=middle width=91.797783pt height=22.465723500000017pt/>
-  a Fit learner <img src="/tex/05865e37647315e29d69badd080268d2.svg?invert_in_darkmode&sanitize=true" align=middle width=41.632511249999986pt height=24.65753399999998pt/> using distribution weights <img src="/tex/bfc59112689000839ba3702dc1445221.svg?invert_in_darkmode&sanitize=true" align=middle width=18.575388149999988pt height=22.465723500000017pt/> and get hypothesis, such that <img src="/tex/71426c0cdd9e8e4d42761b6670f1aaba.svg?invert_in_darkmode&sanitize=true" align=middle width=139.38336059999997pt height=24.65753399999998pt/>
-  b Compute <img src="/tex/6f8f6ef94717567ce284faa9121a6595.svg?invert_in_darkmode&sanitize=true" align=middle width=162.41362005pt height=34.8495345pt/>
-  c Compute <img src="/tex/b063fd39e6e1c4408ba642df3639601e.svg?invert_in_darkmode&sanitize=true" align=middle width=150.22529774999998pt height=37.80850590000001pt/>
-  d Update distribution weights <img src="/tex/90204b97bca96a8ed47fa13e4972ab94.svg?invert_in_darkmode&sanitize=true" align=middle width=35.219309399999986pt height=22.465723500000017pt/>, such that <img src="/tex/f2ce8d37f391b56a1ec57402accc69ec.svg?invert_in_darkmode&sanitize=true" align=middle width=184.05875565pt height=33.20539859999999pt/>, where the normalization factor <img src="/tex/d170ff997d53968dbe1ca824f3b6916a.svg?invert_in_darkmode&sanitize=true" align=middle width=228.81430275000002pt height=26.438629799999987pt/> lies in a distribution of <img src="/tex/11d1b93da95811425e5f049b83dbf430.svg?invert_in_darkmode&sanitize=true" align=middle width=42.00901979999999pt height=21.18721440000001pt/>.
-3. Output prediction <img src="/tex/50995c0d17887710ea6207bc63d8df39.svg?invert_in_darkmode&sanitize=true" align=middle width=214.88309699999994pt height=37.80850590000001pt/>
+<img src="/figs/adaboost/step_details.png" width=850 height=400/>
 
 Given such implementation details, to break it down into finer details step-by-step:
 #### Applying Distribution Weight to SVM
@@ -410,9 +403,9 @@ python -m adaboost dataset_file=default_1 dataset_sample_size=250 svm_regularize
 This obtained model, achieved a 5% error rate on average between both sets, with both sets having the smallest deviation margin difference in error, whilst still obtaining a high classification rate in the mid <img src="/tex/cb2597957123c407ff32edcb5c76b7ce.svg?invert_in_darkmode&sanitize=true" align=middle width=30.137091599999987pt height=24.65753399999998pt/>, as shown below in Figure 1.
 
 **Error Loss & Accuracy:**
-| <img src="/figs/plot/default_1_ss250_c10_ae8.png" width=750 height=450/>  |
-| :--: |
-| *Figure 1: Graph showing error loss and model accuracy against number of iterators, using specified model parameters above.*  |
+<img src="/figs/plot/default_1_ss250_c10_ae8.png" width=750 height=450/>
+
+*Figure 1: Graph showing error loss and model accuracy against number of iterators, using specified model parameters above.*
 
 As a note, Since the dataset is rather small in terms of features, the amount of used weak-learners was also rather significantly smaller than initially thought. In addition, this may have also been effected as a Support Vector Machine classifier is rather an already *strong* classifier itself, with tendency to have higher then accuracy starting in the <img src="/tex/ba566c2176e6618f6ed5a7c6928a48e8.svg?invert_in_darkmode&sanitize=true" align=middle width=30.137091599999987pt height=24.65753399999998pt/>. Whilst, AdaBoost tends works better in generating predictive models with weaker classifiers that obtain <img src="/tex/f84dc7a2c2fe4b38a41e23af3644b3d2.svg?invert_in_darkmode&sanitize=true" align=middle width=80.36537354999999pt height=24.65753399999998pt/> accuracy.
 Although, generally an AdaBoost SVM model is trained using a RBF Kernel-SVM, this may be implemented in a future stage to see if the model can achieve a more stable and preforming model for future unseen cases.
