@@ -1,4 +1,16 @@
 import math
+import sys
+
+# Check if application should print out help
+def application_help_check():
+  helper = [param for param in sys.argv if 'help' in param]
+
+  if len(helper) == 1:
+    if helper[0] == "help":
+      return True
+
+  return False
+
 
 # Check if any of the default datasets have been used
 def default_datasets(value):
@@ -38,6 +50,17 @@ def label_value_check(labels):
 def none_check(params):
   for param in params:
     if param is None:
+      return True
+
+  return False
+
+
+# Check if application is run for graphical plotting performance
+def plot_application_check():
+  plot = [param for param in sys.argv if 'plot' in param]
+
+  if len(plot) == 1:
+    if plot[0] == "plot":
       return True
 
   return False

@@ -7,7 +7,7 @@ from adaboost.learning.weak_learner.classifier.svm import methods
 # SVM application
 # ===============
 
-def run(dataset, dataset_label, C, distribution_weights):
+def run(dataset, dataset_label, C, distribution_weights=None):
   dim_samples, dim_features = dataset.shape
   shaped_label = format_dataset.reshape_vertical_float(dataset_label)
 

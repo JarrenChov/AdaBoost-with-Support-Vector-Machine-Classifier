@@ -55,10 +55,17 @@ def update_distribution_weights(alpha, prediction, dataset_label, distribution_w
 
 # Generate final outcome by combing all hypothesis models into a single model
 def hypothesis_final(model, dataset, dim_samples):
-  continuos_hypothesis = np.ones(dim_samples).reshape(-1, 1).astype(float)
+  continuos_hypothesis = np.zeros(dim_samples).reshape(-1, 1).astype(float)
 
-  for hypothesis in model:
-    weak_learner = classification.svm_prediction(dataset, hypothesis.svm_w, hypothesis.svm_b)
-    continuos_hypothesis = continuos_hypothesis + (hypothesis.model_weight *  weak_learner)
+  # Run first model as a SVM, without AdaBoost (Only used in application_plot)
+  if len(model) == 1 and model[0].model_weight == -1:
+    initial_svm = classification.svm_prediction(dataset, model[0].svm_w, model[0].svm_b)
+    continuos_hypothesis = continuos_hypothesis + initial_svm
+  else:
+    for hypothesis in model:
+      # Only process models which have a weight > 0
+      if hypothesis.model_weight != -1:
+        weak_learner = classification.svm_prediction(dataset, hypothesis.svm_w, hypothesis.svm_b)
+        continuos_hypothesis = continuos_hypothesis + (hypothesis.model_weight * weak_learner)
 
   return format_dataset.pandas_dataframe(np.sign(continuos_hypothesis))

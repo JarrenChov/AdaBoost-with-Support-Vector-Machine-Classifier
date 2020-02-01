@@ -79,8 +79,8 @@ This database is also available through the UW CS ftp server:
 	ftp ftp.cs.wisc.edu
 	cd math-prog/cpo-dataset/machine-learn/WDBC/
 
-Number of instances: 569
-Number of attributes: 32 (ID, diagnosis, 30 real-valued input features)
+- Number of instances: 569
+- Number of attributes: 32 (ID, diagnosis, 30 real-valued input features)
 
 ### Attribute information
 These information directly co-relate to data layout in `/wdbc/raw/wdbc_data.csv`

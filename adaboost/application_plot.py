@@ -10,6 +10,7 @@ from adaboost.common.get import application_helper, retrieve_param
 from adaboost.common.set import set_param
 from adaboost.learning.dimension_reduction import pca
 from adaboost.learning.weak_learner.classifier import svm
+from adaboost.plotting import plot_application
 
 def run():
 # ============================================
@@ -58,6 +59,12 @@ def run():
   adaboost_early_termination = False
   adaboost_error_termination = False
 
+  # Application plotting data
+  application_train_error = []
+  application_train_accuracy = []
+  application_test_error = []
+  application_test_accuracy = []
+
   # Initialize global variables
   constants.initialize()
 
@@ -71,7 +78,7 @@ def run():
 # ============================================
 
   # Extract parameter values from user input or application arguments
-  if len(sys.argv) > 1:
+  if len(sys.argv) > 2:
 
     print("Retrieving parameters from arguments...")
 
@@ -270,18 +277,30 @@ def run():
   # Initialize distribution weights
   adaboost_distribution_weights = methods.distribution_weights(dataset_sample_size)
 
-  for estimators in range(adaboost_estimators):
-    print("> AdaBoost Estimator :: [ %d ]" % (estimators + 1))
+  for estimators in range(adaboost_estimators + 1):
+    estimator_start_time = time.time()
+
+    print("> AdaBoost Estimator :: [ %d ]" % (estimators))
     print("--------------------------------------------------------")
 
     # Weak Learner - SVM application
     hypothesis = classes.model()
-    svm_w, svm_b = svm.application.run (
-                      dataset_train_set,
-                      dataset_train_label,
-                      svm_regularizer_c,
-                      adaboost_distribution_weights
-                    )
+
+    # Run first (0th) iteration as SVM without AdaBoost weights
+    if estimators > 0:
+      svm_w, svm_b = svm.application.run (
+                        dataset_train_set,
+                        dataset_train_label,
+                        svm_regularizer_c,
+                        adaboost_distribution_weights
+                      )
+    else:
+      svm_w, svm_b = svm.application.run (
+                        dataset_train_set,
+                        dataset_train_label,
+                        svm_regularizer_c,
+                        None
+                      )
 
     # Check for empty SVM values
     if svm_w is None and svm_b is None:
@@ -291,69 +310,63 @@ def run():
     # Set SVM hypothesis parameters
     hypothesis = methods.set_hypothesis_value(hypothesis, svm_w, svm_b)
 
-    # Predict classification errors in labels (y) with the relationship X -> y
-    hypothesis_prediction, hypothesis_error = methods.hypothesis_classification_error (
-                                                hypothesis,
-                                                dataset_train_set, dataset_train_label,
-                                                adaboost_distribution_weights
-                                              )
+    if estimators > 0:
+      # Predict classification errors in labels (y) with the relationship X -> y
+      hypothesis_prediction, hypothesis_error = methods.hypothesis_classification_error (
+                                                  hypothesis,
+                                                  dataset_train_set, dataset_train_label,
+                                                  adaboost_distribution_weights
+                                                )
 
-    if math.isclose(hypothesis_error, 0.0, abs_tol = 0.0):
-      print ("========================================================\n"
-            "\nReached prediction error threshold. (classification error: 0.0).")
+      if math.isclose(hypothesis_error, 0.0, abs_tol = 0.0):
+        print ("========================================================\n"
+              "\nReached prediction error threshold. (classification error: 0.0).")
 
-      adaboost_early_termination = True
-      adaboost_estimators = estimators
-      break
+        adaboost_early_termination = True
+        adaboost_estimators = estimators - 1
+        break
 
-    # Calculate significance of hypothesis model as a final strong learner
-    hypothesis.model_weight = methods.hypothesis_significance(hypothesis_error)
+      # Calculate significance of hypothesis model as a final strong learner
+      hypothesis.model_weight = methods.hypothesis_significance(hypothesis_error)
 
-    # Update distribution weights
-    adaboost_distribution_weights = methods.update_distribution_weights (
-                                      hypothesis.model_weight, hypothesis_prediction,
-                                      dataset_train_label,
-                                      adaboost_distribution_weights
-                                    )
+      # Update distribution weights
+      adaboost_distribution_weights = methods.update_distribution_weights (
+                                        hypothesis.model_weight, hypothesis_prediction,
+                                        dataset_train_label,
+                                        adaboost_distribution_weights
+                                      )
 
-    print("\n  AdaBoost Model Weight: [%s]\n"
-          "========================================================"
-          % (hypothesis.model_weight))
-    if estimators != (adaboost_estimators - 1):
-      print("\n")
+      print("\n  AdaBoost Model Weight: [%s]\n" % (hypothesis.model_weight))
 
-    # Check weak learners contain only classifying information
-    if math.isclose(hypothesis.model_weight, 0.0, abs_tol = 1e-4):
-      adaboost_early_termination = True
-      adaboost_estimators = estimators
-      break
+      # Check weak learners contain only classifying information
+      if math.isclose(abs(hypothesis.model_weight), 0.0, abs_tol = 1e-4):
+        adaboost_early_termination = True
+        adaboost_estimators = estimators - 1
+        break
+    else:
+       hypothesis.model_weight = -1
 
     adaboost_model.append(hypothesis)
 
-  application_end_time = time.time()
+    estimator_end_time = time.time()
 
-  if adaboost_error_termination is True:
-    print("Exiting. (ERR_SVM_NULL_PARAM)")
-    return -1
-
-  if adaboost_early_termination is True:
-    print("Early termination. Stopping. (EARLY_TERMINATION_DETECTED)")
-
-  if adaboost_estimators > 0:
     # Obtain Prediction and accuracy using obtained AdaboostSVM model
     train_prediction = methods.hypothesis_final(adaboost_model, dataset_train_set, dataset_sample_size)
     train_results = classification.prediction_accuracy(train_prediction, dataset_train_label)
     test_prediction = methods.hypothesis_final(adaboost_model, dataset_test_set, dataset_test_size)
     test_results = classification.prediction_accuracy(test_prediction, dataset_test_label)
 
+    application_train_error.append(train_results.classified_error)
+    application_train_accuracy.append(train_results.classified_accuracy)
+    application_test_error.append(test_results.classified_error)
+    application_test_accuracy.append(test_results.classified_accuracy)
 
   # ===================
   # Application Results
   # ===================
 
-    print("\n=== Application Result Details ===")
-    print("  Application Execution Time: %s sec\n\n"
-          "  Model Weak-Learners: %d\n"
+    print("\n  > Application Result Details")
+    print("  Estimator Execution Time: %s sec\n\n"
           "\n  - Train Set [%s samples]\n"
           "\t    Correctly Classified Samples: %s\n"
           "\t    Misclassified Samples: %s\n"
@@ -364,11 +377,37 @@ def run():
           "\t    Misclassified Samples: %s\n"
           "\t    Accuracy: %f%s\n"
           "\t    Error: %f%s"
-          % (application_end_time - application_start_time, adaboost_estimators,
+          % (estimator_end_time - estimator_start_time,
           dataset_sample_size, train_results.classified, train_results.misclassified,
           train_results.classified_accuracy * 100, '%',  train_results.classified_error * 100, '%',
           dataset_test_size, test_results.classified, test_results.misclassified,
           test_results.classified_accuracy * 100, '%', test_results.classified_error * 100, '%'))
+    print("========================================================")
+    if estimators != (adaboost_estimators - 1):
+      print("\n")
+
+  application_end_time = time.time()
+
+  if adaboost_error_termination is True:
+    print("Exiting. (ERR_SVM_NULL_PARAM)")
+    return -1
+
+  if adaboost_early_termination is True:
+    print("Early termination. Stopping. (EARLY_TERMINATION_DETECTED)")
+
+  print("Application Execution Time: %s sec" % (application_end_time - application_start_time))
+
+
+  # ==========================
+  # Plot Graphical Performance
+  # ==========================
+
+  if adaboost_estimators > 0:
+    plot_application.run (
+      adaboost_estimators,
+      application_train_error, application_test_error,
+      application_train_accuracy, application_test_accuracy
+    )
   else:
     print("No model with weak learners found. Stopping. (NULL_PREDICTION_MODEL)")
 

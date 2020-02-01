@@ -1,3 +1,7 @@
+from .application import run
+
+from .application_plot import run
+
 from .methods import (
   distribution_weights,
   set_hypothesis_value,

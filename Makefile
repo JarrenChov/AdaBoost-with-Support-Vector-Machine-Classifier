@@ -10,9 +10,13 @@ help:
 	@echo "make test"
 	@echo "       run application tests."
 	@echo "make run"
-	@echo "       run application without arguments."
-	@echo "       [OPTIONAL]: If running application with arguments, run with 'python -m adaboost {arguments}'"
-	@echo "                   as described below"
+	@echo "       run default application without any arguments."
+	@echo "       [OPTIONAL]: If running application with arguments, run with 'python -m adaboost {arguments},'"
+	@echo "                   with arguments as described below"
+	@echo "make run-plot"
+	@echo "       run application plot without any arguments."
+	@echo "       [OPTIONAL]: If running application with arguments, run with 'python -m adaboost plot {arguments},'"
+	@echo "                   with arguments as described below"
 	@echo ""
 
 	python -m adaboost help
@@ -28,3 +32,6 @@ test:
 
 run:
 	python -m adaboost
+
+run-plot:
+	python -m adaboost plot

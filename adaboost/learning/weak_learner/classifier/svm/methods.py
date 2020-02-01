@@ -25,9 +25,14 @@ def dual_problem_quadratic_param(dataset, dataset_label, dim_samples, C, distrib
     if constants.OUTPUT_DETAIL is True:
       print("  --set -data=non-linearly-separable -type=soft-margin")
 
-    shaped_distribution_weight = distribution_weights.values.flatten().astype(float)
     G = cvxopt.matrix(np.vstack(((np.eye(dim_samples) * -1), np.eye(dim_samples))))
-    h = cvxopt.matrix(np.hstack((np.zeros(dim_samples), shaped_distribution_weight * (np.ones(dim_samples) * C))))
+
+    # Calc h using default C if no distribution weights given
+    if distribution_weights is None:
+      h = cvxopt.matrix(np.hstack((np.zeros(dim_samples), np.ones(dim_samples) * C)))
+    else:
+      shaped_distribution_weight = distribution_weights.values.flatten().astype(float)
+      h = cvxopt.matrix(np.hstack((np.zeros(dim_samples), shaped_distribution_weight * (np.ones(dim_samples) * C))))
 
   A = cvxopt.matrix(dataset_label.reshape(1, -1))
   b = cvxopt.matrix(np.zeros(1))
